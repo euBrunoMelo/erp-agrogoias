@@ -1,0 +1,24 @@
+{
+  "name": "erp-agrogoias",
+  "version": "1.0.0",
+  "description": "Sistema ERP para AgroGoiás",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'Build complete'",
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "erp",
+    "agrogoias"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.1"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}
+
