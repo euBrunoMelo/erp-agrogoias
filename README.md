@@ -50,12 +50,15 @@ git push -u origin main
 1. Acesse [supabase.com](https://supabase.com)
 2. Crie um novo projeto
 3. Copie a URL do projeto e a chave anônima (anon key)
-4. Crie um arquivo `.env` na raiz do projeto:
+4. Execute as migrations do banco de dados:
+   - Acesse **SQL Editor** no Supabase Dashboard
+   - Abra `supabase/migrations/all_migrations.sql`
+   - Copie e execute todo o conteúdo
+   - Ou veja `supabase/QUICK_START.md` para mais detalhes
 
-```env
-SUPABASE_URL=sua_url_do_supabase
-SUPABASE_ANON_KEY=sua_chave_anonima
-```
+5. Configure as variáveis de ambiente no Vercel:
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY`
 
 ### 3. Vercel
 
@@ -73,11 +76,23 @@ Após a configuração inicial, cada push para a branch `main` irá disparar um 
 
 ## 📚 Tecnologias
 
-- HTML5
-- CSS3
-- JavaScript
-- Supabase (Backend/Database)
+- HTML5, CSS3, JavaScript (ES6+)
+- Supabase (PostgreSQL + Auth + Storage)
 - Vercel (Hosting)
+- Leaflet.js (Mapas)
+
+## 🗄️ Banco de Dados
+
+As tabelas estão prontas para criação no Supabase:
+
+- `properties` - Propriedades rurais
+- `plots` - Talhões
+- `soil_analysis` - Análises de solo
+- `crops` - Culturas
+- `culture_varieties` - Variedades
+- `crop_cycles` - Ciclos de cultivo
+
+Veja `supabase/QUICK_START.md` para instruções de criação.
 
 ## 📝 Licença
 
