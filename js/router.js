@@ -62,6 +62,11 @@ async function navigate(path) {
                 oldScript.parentNode.replaceChild(newScript, oldScript);
             });
             
+            // Fechar menu hambúrguer se estiver aberto
+            if (typeof closeMenu === 'function') {
+                closeMenu();
+            }
+            
             // Disparar evento de página carregada
             window.dispatchEvent(new CustomEvent('pageLoaded', { detail: { path } }));
         }

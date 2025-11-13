@@ -10,18 +10,39 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <h1 class="nav-logo">ERP AgroGoiás</h1>
+            <div class="nav-left">
+                <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <h1 class="nav-logo">ERP AgroGoiás</h1>
+            </div>
             <ul class="nav-menu">
                 <li id="navDashboard"><a href="/" onclick="event.preventDefault(); navigate('/dashboard')">Dashboard</a></li>
-                <li id="navProperties"><a href="/properties" onclick="event.preventDefault(); navigate('/properties')">Propriedades</a></li>
-                <li id="navPlots"><a href="/plots" onclick="event.preventDefault(); navigate('/plots')">Talhões</a></li>
-                <li id="navSoilAnalysis"><a href="/soil-analysis" onclick="event.preventDefault(); navigate('/soil-analysis')">Análises de Solo</a></li>
-                <li id="navCropCycles"><a href="/crop-cycles" onclick="event.preventDefault(); navigate('/crop-cycles')">Ciclos de Cultivo</a></li>
                 <li id="navLogin" style="display: none;"><a href="/login" onclick="event.preventDefault(); navigate('/login')">Login</a></li>
                 <li id="navLogout" style="display: none;"><a href="#" onclick="event.preventDefault(); handleLogout()">Sair</a></li>
             </ul>
         </div>
     </nav>
+
+    <!-- Menu Lateral (Hamburger) -->
+    <div class="sidebar-menu" id="sidebarMenu">
+        <div class="sidebar-header">
+            <h2>Menu</h2>
+            <button class="sidebar-close" onclick="toggleMenu()" aria-label="Fechar menu">&times;</button>
+        </div>
+        <ul class="sidebar-menu-list">
+            <li id="sidebarDashboard"><a href="/" onclick="event.preventDefault(); closeMenu(); navigate('/dashboard')">📊 Dashboard</a></li>
+            <li id="sidebarProperties"><a href="/properties" onclick="event.preventDefault(); closeMenu(); navigate('/properties')">🏞️ Propriedades</a></li>
+            <li id="sidebarPlots"><a href="/plots" onclick="event.preventDefault(); closeMenu(); navigate('/plots')">📐 Talhões</a></li>
+            <li id="sidebarSoilAnalysis"><a href="/soil-analysis" onclick="event.preventDefault(); closeMenu(); navigate('/soil-analysis')">🔬 Análises de Solo</a></li>
+            <li id="sidebarCropCycles"><a href="/crop-cycles" onclick="event.preventDefault(); closeMenu(); navigate('/crop-cycles')">🌾 Ciclos de Cultivo</a></li>
+            <li id="sidebarLogin" style="display: none;"><a href="/login" onclick="event.preventDefault(); closeMenu(); navigate('/login')">🔐 Login</a></li>
+            <li id="sidebarLogout" style="display: none;"><a href="#" onclick="event.preventDefault(); closeMenu(); handleLogout()">🚪 Sair</a></li>
+        </ul>
+    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMenu()"></div>
 
     <main class="main-content">
         <div id="app">
@@ -55,6 +76,27 @@
     <script src="js/router.js"></script>
     
     <script>
+    // Funções do menu hambúrguer
+    function toggleMenu() {
+        const sidebar = document.getElementById('sidebarMenu');
+        const overlay = document.getElementById('sidebarOverlay');
+        const toggle = document.getElementById('menuToggle');
+        
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        toggle.classList.toggle('active');
+    }
+    
+    function closeMenu() {
+        const sidebar = document.getElementById('sidebarMenu');
+        const overlay = document.getElementById('sidebarOverlay');
+        const toggle = document.getElementById('menuToggle');
+        
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        toggle.classList.remove('active');
+    }
+    
     // Atualizar navbar baseado em autenticação
     async function updateNavbar() {
         // Aguardar funções de auth estarem disponíveis
@@ -66,31 +108,46 @@
         try {
             const authenticated = await isAuthenticated();
             const navDashboard = document.getElementById('navDashboard');
-            const navProperties = document.getElementById('navProperties');
-            const navPlots = document.getElementById('navPlots');
-            const navSoilAnalysis = document.getElementById('navSoilAnalysis');
-            const navCropCycles = document.getElementById('navCropCycles');
             const navLogin = document.getElementById('navLogin');
             const navLogout = document.getElementById('navLogout');
             
+            // Sidebar menu items
+            const sidebarDashboard = document.getElementById('sidebarDashboard');
+            const sidebarProperties = document.getElementById('sidebarProperties');
+            const sidebarPlots = document.getElementById('sidebarPlots');
+            const sidebarSoilAnalysis = document.getElementById('sidebarSoilAnalysis');
+            const sidebarCropCycles = document.getElementById('sidebarCropCycles');
+            const sidebarLogin = document.getElementById('sidebarLogin');
+            const sidebarLogout = document.getElementById('sidebarLogout');
+            
             if (authenticated) {
-                // Mostrar links autenticados
+                // Navbar principal - apenas Dashboard e Sair
                 if (navDashboard) navDashboard.style.display = 'list-item';
-                if (navProperties) navProperties.style.display = 'list-item';
-                if (navPlots) navPlots.style.display = 'list-item';
-                if (navSoilAnalysis) navSoilAnalysis.style.display = 'list-item';
-                if (navCropCycles) navCropCycles.style.display = 'list-item';
                 if (navLogin) navLogin.style.display = 'none';
                 if (navLogout) navLogout.style.display = 'list-item';
+                
+                // Sidebar - mostrar todos os links autenticados
+                if (sidebarDashboard) sidebarDashboard.style.display = 'list-item';
+                if (sidebarProperties) sidebarProperties.style.display = 'list-item';
+                if (sidebarPlots) sidebarPlots.style.display = 'list-item';
+                if (sidebarSoilAnalysis) sidebarSoilAnalysis.style.display = 'list-item';
+                if (sidebarCropCycles) sidebarCropCycles.style.display = 'list-item';
+                if (sidebarLogin) sidebarLogin.style.display = 'none';
+                if (sidebarLogout) sidebarLogout.style.display = 'list-item';
             } else {
-                // Mostrar apenas login
+                // Navbar principal - apenas Login
                 if (navDashboard) navDashboard.style.display = 'none';
-                if (navProperties) navProperties.style.display = 'none';
-                if (navPlots) navPlots.style.display = 'none';
-                if (navSoilAnalysis) navSoilAnalysis.style.display = 'none';
-                if (navCropCycles) navCropCycles.style.display = 'none';
                 if (navLogin) navLogin.style.display = 'list-item';
                 if (navLogout) navLogout.style.display = 'none';
+                
+                // Sidebar - mostrar apenas Login
+                if (sidebarDashboard) sidebarDashboard.style.display = 'none';
+                if (sidebarProperties) sidebarProperties.style.display = 'none';
+                if (sidebarPlots) sidebarPlots.style.display = 'none';
+                if (sidebarSoilAnalysis) sidebarSoilAnalysis.style.display = 'none';
+                if (sidebarCropCycles) sidebarCropCycles.style.display = 'none';
+                if (sidebarLogin) sidebarLogin.style.display = 'list-item';
+                if (sidebarLogout) sidebarLogout.style.display = 'none';
             }
         } catch (error) {
             console.error('Erro ao atualizar navbar:', error);
@@ -121,8 +178,10 @@
         }
     }, 3000);
     
-    // Exportar handleLogout globalmente
+    // Exportar funções globalmente
     window.handleLogout = handleLogout;
+    window.toggleMenu = toggleMenu;
+    window.closeMenu = closeMenu;
     </script>
 </body>
 </html>
