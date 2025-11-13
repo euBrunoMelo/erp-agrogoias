@@ -1,25 +1,49 @@
 <div class="dashboard">
     <h1>Dashboard</h1>
-    <div class="dashboard-grid">
-        <div class="dashboard-card">
-            <h3>Propriedades</h3>
-            <p id="propertiesCount">Carregando...</p>
-            <button onclick="navigate('/properties')" class="btn-primary">Gerenciar</button>
+    
+    <div class="dashboard-layout">
+        <!-- Cards de Estatísticas -->
+        <div class="dashboard-cards-section">
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>Propriedades</h3>
+                    <p id="propertiesCount">Carregando...</p>
+                    <button onclick="navigate('/properties')" class="btn-primary">Gerenciar</button>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Talhões</h3>
+                    <p id="plotsCount">Carregando...</p>
+                    <button onclick="navigate('/plots')" class="btn-primary">Gerenciar</button>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Análises de Solo</h3>
+                    <p id="soilAnalysesCount">Carregando...</p>
+                    <button onclick="navigate('/soil-analysis')" class="btn-primary">Gerenciar</button>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Ciclos de Cultivo</h3>
+                    <p id="cropCyclesCount">Carregando...</p>
+                    <button onclick="navigate('/crop-cycles')" class="btn-primary">Gerenciar</button>
+                </div>
+            </div>
         </div>
-        <div class="dashboard-card">
-            <h3>Talhões</h3>
-            <p id="plotsCount">Carregando...</p>
-            <button onclick="navigate('/plots')" class="btn-primary">Gerenciar</button>
-        </div>
-        <div class="dashboard-card">
-            <h3>Análises de Solo</h3>
-            <p id="soilAnalysesCount">Carregando...</p>
-            <button onclick="navigate('/soil-analysis')" class="btn-primary">Gerenciar</button>
-        </div>
-        <div class="dashboard-card">
-            <h3>Ciclos de Cultivo</h3>
-            <p id="cropCyclesCount">Carregando...</p>
-            <button onclick="navigate('/crop-cycles')" class="btn-primary">Gerenciar</button>
+        
+        <!-- Mapa -->
+        <div class="dashboard-map-section">
+            <div class="dashboard-map-header">
+                <h2>Localizações</h2>
+                <div class="map-legend">
+                    <span class="legend-item">
+                        <span class="legend-marker property-marker"></span>
+                        Propriedades
+                    </span>
+                    <span class="legend-item">
+                        <span class="legend-marker plot-marker"></span>
+                        Talhões
+                    </span>
+                </div>
+            </div>
+            <div id="dashboardMap" class="map-container map-container-large"></div>
         </div>
     </div>
 </div>
@@ -39,7 +63,7 @@ async function loadDashboard() {
     
     supabase = window.supabaseClient;
 
-    // Carregar contadores
+    // Carregar contadores e mapa
     try {
         const properties = await getProperties();
         const propertiesCountEl = document.getElementById('propertiesCount');
@@ -64,6 +88,9 @@ async function loadDashboard() {
         if (cropCyclesCountEl) {
             cropCyclesCountEl.textContent = `${cropCycles.length} ciclo(s)`;
         }
+        
+        // Carregar mapa com propriedades e talhões
+        loadDashboardMap(properties, plots);
     } catch (error) {
         console.error('Erro ao carregar dashboard:', error);
         // Se erro de autenticação, redirecionar para login
@@ -71,6 +98,122 @@ async function loadDashboard() {
             navigate('/login');
         }
     }
+}
+
+let dashboardMap = null;
+let dashboardMarkers = [];
+
+function loadDashboardMap(properties, plots) {
+    // Limpar mapa anterior se existir
+    if (dashboardMap) {
+        dashboardMap.remove();
+        dashboardMarkers = [];
+    }
+    
+    // Coordenadas padrão: Goiânia-GO
+    let center = [-16.6864, -49.2556];
+    let zoom = 10;
+    
+    // Se houver propriedades, centralizar no primeiro
+    if (properties && properties.length > 0) {
+        const firstProperty = properties[0];
+        if (firstProperty.coordinates) {
+            const coords = parseCoordinates(firstProperty.coordinates);
+            if (coords) {
+                center = [coords.lat, coords.lng];
+                zoom = 12;
+            }
+        }
+    }
+    
+    // Criar mapa
+    dashboardMap = initMap('dashboardMap', center, zoom);
+    if (!dashboardMap) return;
+    
+    // Adicionar marcadores de propriedades
+    if (properties && properties.length > 0) {
+        properties.forEach(property => {
+            if (property.coordinates) {
+                const coords = parseCoordinates(property.coordinates);
+                if (coords) {
+                    const marker = L.marker([coords.lat, coords.lng], {
+                        icon: L.icon({
+                            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+                            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34]
+                        })
+                    }).addTo(dashboardMap);
+                    
+                    marker.bindPopup(`
+                        <strong>${property.name}</strong><br>
+                        ${property.location || 'Sem localização'}<br>
+                        ${property.city || ''} - ${property.state || 'GO'}<br>
+                        ${property.total_area ? `Área: ${property.total_area} ha` : ''}
+                    `);
+                    
+                    dashboardMarkers.push(marker);
+                }
+            }
+        });
+    }
+    
+    // Adicionar polígonos de talhões
+    if (plots && plots.length > 0) {
+        plots.forEach(plot => {
+            if (plot.coordinates) {
+                const coords = parseCoordinates(plot.coordinates);
+                if (coords && Array.isArray(coords)) {
+                    // É um polígono
+                    const polygon = L.polygon(coords, {
+                        color: '#16a34a',
+                        fillColor: '#22c55e',
+                        fillOpacity: 0.3,
+                        weight: 2
+                    }).addTo(dashboardMap);
+                    
+                    const propertyName = (plot.properties && plot.properties.name) ? plot.properties.name : 'Propriedade desconhecida';
+                    polygon.bindPopup(`
+                        <strong>${plot.name}</strong><br>
+                        Propriedade: ${propertyName}<br>
+                        Área: ${plot.area || 'N/A'} ha<br>
+                        ${plot.soil_type ? `Solo: ${plot.soil_type}` : ''}
+                    `);
+                    
+                    dashboardMarkers.push(polygon);
+                }
+            }
+        });
+    }
+    
+    // Ajustar zoom para mostrar todos os marcadores
+    if (dashboardMarkers.length > 0) {
+        const group = new L.featureGroup(dashboardMarkers);
+        const bounds = group.getBounds();
+        // Adicionar padding manualmente se pad() não estiver disponível
+        if (bounds.pad) {
+            dashboardMap.fitBounds(bounds.pad(0.1));
+        } else {
+            // Expandir bounds manualmente
+            const sw = bounds.getSouthWest();
+            const ne = bounds.getNorthEast();
+            const latDiff = (ne.lat - sw.lat) * 0.1;
+            const lngDiff = (ne.lng - sw.lng) * 0.1;
+            const paddedBounds = L.latLngBounds(
+                [sw.lat - latDiff, sw.lng - lngDiff],
+                [ne.lat + latDiff, ne.lng + lngDiff]
+            );
+            dashboardMap.fitBounds(paddedBounds);
+        }
+    }
+    
+    // Invalidar tamanho após um delay
+    setTimeout(() => {
+        if (dashboardMap) {
+            dashboardMap.invalidateSize();
+        }
+    }, 200);
 }
 
 // Executar quando página carregar

@@ -495,7 +495,7 @@ body {
 
 /* Dashboard */
 .dashboard {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
 }
 
@@ -505,10 +505,86 @@ body {
     margin-bottom: 2rem;
 }
 
+/* Layout lado a lado: Cards e Mapa */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.dashboard-cards-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-map-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.dashboard-map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+}
+
+.dashboard-map-header h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin: 0;
+}
+
+.map-legend {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #555;
+}
+
+.legend-marker {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legend-marker.property-marker {
+    background: #16a34a;
+    border: 2px solid #22c55e;
+}
+
+.legend-marker.plot-marker {
+    background: #22c55e;
+    border: 2px solid #4ade80;
+    border-radius: 0;
+    width: 12px;
+    height: 12px;
+    transform: rotate(45deg);
+}
+
+.map-container-large {
+    height: 600px;
+    min-height: 600px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.1);
+    border: 2px solid #e5f7ed;
+}
+
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
 }
 
 .dashboard-card {
@@ -902,6 +978,25 @@ body {
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-map-section {
+        order: -1; /* Mapa aparece primeiro em mobile */
+    }
+    
+    .map-container-large {
+        height: 400px;
+        min-height: 400px;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 768px) {
     .title {
         font-size: 2.5rem;
