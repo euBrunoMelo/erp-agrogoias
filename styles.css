@@ -869,6 +869,39 @@ body {
     font-weight: 500;
 }
 
+/* CEP Input Group */
+.cep-input-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.cep-input-group input {
+    flex: 1;
+}
+
+.btn-cep-search {
+    padding: 0.75rem 1.5rem;
+    background: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-cep-search:hover {
+    background: #15803d;
+    transform: translateY(-1px);
+}
+
+.btn-cep-search:active {
+    transform: translateY(0);
+}
+
 .error-message {
     background: #fef2f2;
     border: 1px solid #fca5a5;

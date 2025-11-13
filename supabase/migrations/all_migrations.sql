@@ -16,6 +16,7 @@ $$ language 'plpgsql';
 CREATE TABLE IF NOT EXISTS properties (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
+    cep VARCHAR(9),
     location VARCHAR(255),
     city VARCHAR(100),
     state VARCHAR(2) DEFAULT 'GO',
@@ -26,6 +27,17 @@ CREATE TABLE IF NOT EXISTS properties (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Adicionar coluna CEP se não existir (para migrações existentes)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'properties' AND column_name = 'cep'
+    ) THEN
+        ALTER TABLE properties ADD COLUMN cep VARCHAR(9);
+    END IF;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_properties_owner_id ON properties(owner_id);
 CREATE INDEX IF NOT EXISTS idx_properties_created_at ON properties(created_at DESC);
