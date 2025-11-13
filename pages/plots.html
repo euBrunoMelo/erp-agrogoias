@@ -40,6 +40,13 @@
                 <div class="form-group">
                     <label for="plotArea">Área (hectares) *</label>
                     <input type="number" id="plotArea" step="0.01" min="0" required>
+                    <small class="form-help" id="plotAreaHelp">A área será calculada automaticamente ao desenhar o polígono</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Desenhar Talhão no Mapa</label>
+                    <p class="form-help">Use a ferramenta de desenho (ícone de polígono) para desenhar o contorno do talhão. A área será calculada automaticamente.</p>
+                    <div id="plotMap" class="map-container map-container-large"></div>
                 </div>
                 
                 <div class="form-group">
@@ -136,14 +143,41 @@ function showPlotForm(plotId = null) {
         title.textContent = 'Novo Talhão';
         form.reset();
         document.getElementById('plotId').value = '';
+        // Limpar mapa anterior
+        clearPlotMap();
+        // Inicializar mapa após um pequeno delay
+        setTimeout(() => {
+                initPlotMap('plotMap', null, (coordinates) => {
+                    // Callback quando polígono muda
+                    if (coordinates && coordinates.length > 0) {
+                        // Calcular área automaticamente
+                        const coords = coordinates.map(coord => ({lat: coord[0], lng: coord[1]}));
+                        const area = calculatePolygonArea(coords);
+                        document.getElementById('plotArea').value = area.toFixed(2);
+                        document.getElementById('plotAreaHelp').textContent = `Área calculada: ${area.toFixed(2)} hectares`;
+                    } else {
+                        document.getElementById('plotArea').value = '';
+                        document.getElementById('plotAreaHelp').textContent = 'A área será calculada automaticamente ao desenhar o polígono';
+                    }
+                });
+        }, 300);
     }
     
     modal.classList.add('show');
+    
+    // Invalidar tamanho do mapa após modal abrir (se já existir)
+    if (plotMap) {
+        setTimeout(() => {
+            plotMap.invalidateSize();
+        }, 100);
+    }
 }
 
 function closePlotForm() {
     document.getElementById('plotModal').classList.remove('show');
     editingPlotId = null;
+    // Limpar mapa ao fechar
+    clearPlotMap();
 }
 
 async function loadPlotForEdit(id) {
@@ -156,6 +190,21 @@ async function loadPlotForEdit(id) {
             document.getElementById('plotArea').value = plot.area || '';
             document.getElementById('plotSoilType').value = plot.soil_type || '';
             document.getElementById('plotDescription').value = plot.description || '';
+            
+            // Carregar polígono no mapa
+            clearPlotMap();
+            setTimeout(() => {
+                const coords = parseCoordinates(plot.coordinates);
+                initPlotMap('plotMap', coords, (coordinates) => {
+                    // Callback quando polígono é editado
+                    if (coordinates && coordinates.length > 0) {
+                        const coordsArray = coordinates.map(coord => ({lat: coord[0], lng: coord[1]}));
+                        const area = calculatePolygonArea(coordsArray);
+                        document.getElementById('plotArea').value = area.toFixed(2);
+                        document.getElementById('plotAreaHelp').textContent = `Área calculada: ${area.toFixed(2)} hectares`;
+                    }
+                });
+            }, 300);
         }
     } catch (error) {
         console.error('Erro ao carregar talhão:', error);
@@ -166,12 +215,23 @@ async function savePlot(event) {
     event.preventDefault();
     
     const id = document.getElementById('plotId').value;
+    const coordinates = getPlotCoordinates();
+    
+    // Se houver polígono desenhado, usar área calculada do polígono
+    let area = parseFloat(document.getElementById('plotArea').value);
+    if (coordinates && area === 0) {
+        // Calcular área do polígono se não foi preenchida
+        const coords = coordinates.coordinates[0].map(coord => ({lat: coord[1], lng: coord[0]}));
+        area = calculatePolygonArea(coords);
+    }
+    
     const plot = {
         property_id: document.getElementById('plotProperty').value,
         name: document.getElementById('plotName').value,
-        area: parseFloat(document.getElementById('plotArea').value),
+        area: area,
         soil_type: document.getElementById('plotSoilType').value || null,
-        description: document.getElementById('plotDescription').value || null
+        description: document.getElementById('plotDescription').value || null,
+        coordinates: coordinates
     };
     
     try {

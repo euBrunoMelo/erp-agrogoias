@@ -45,6 +45,12 @@
                 </div>
                 
                 <div class="form-group">
+                    <label>Localização no Mapa</label>
+                    <p class="form-help">Clique no mapa ou arraste o marcador para definir a localização</p>
+                    <div id="propertyMap" class="map-container"></div>
+                </div>
+                
+                <div class="form-group">
                     <label for="propertyDescription">Descrição</label>
                     <textarea id="propertyDescription" rows="3"></textarea>
                 </div>
@@ -105,14 +111,32 @@ function showPropertyForm(propertyId = null) {
         title.textContent = 'Nova Propriedade';
         form.reset();
         document.getElementById('propertyId').value = '';
+        // Limpar mapa anterior
+        clearPropertyMap();
+        // Inicializar mapa após um pequeno delay para garantir que o modal está visível
+        setTimeout(() => {
+            initPropertyMap('propertyMap', null, (lat, lng) => {
+                // Callback quando coordenadas mudam
+                console.log('Coordenadas atualizadas:', lat, lng);
+            });
+        }, 300);
     }
     
     modal.classList.add('show');
+    
+    // Invalidar tamanho do mapa após modal abrir (se já existir)
+    if (propertyMap) {
+        setTimeout(() => {
+            propertyMap.invalidateSize();
+        }, 100);
+    }
 }
 
 function closePropertyForm() {
     document.getElementById('propertyModal').classList.remove('show');
     editingPropertyId = null;
+    // Limpar mapa ao fechar
+    clearPropertyMap();
 }
 
 async function loadPropertyForEdit(id) {
@@ -124,8 +148,17 @@ async function loadPropertyForEdit(id) {
             document.getElementById('propertyLocation').value = property.location || '';
             document.getElementById('propertyCity').value = property.city || '';
             document.getElementById('propertyState').value = property.state || 'GO';
-            document.getElementById('propertyArea').value = property.total_area || '';
+            document.getElementById('propertyArea').value = property.total_area || '';  
             document.getElementById('propertyDescription').value = property.description || '';
+            
+            // Carregar coordenadas no mapa
+            clearPropertyMap();
+            setTimeout(() => {
+                const coords = parseCoordinates(property.coordinates);
+                initPropertyMap('propertyMap', coords, (lat, lng) => {
+                    console.log('Coordenadas atualizadas:', lat, lng);
+                });
+            }, 300);
         }
     } catch (error) {
         console.error('Erro ao carregar propriedade:', error);
@@ -136,13 +169,16 @@ async function saveProperty(event) {
     event.preventDefault();
     
     const id = document.getElementById('propertyId').value;
+    const coordinates = getPropertyCoordinates();
+    
     const property = {
         name: document.getElementById('propertyName').value,
         location: document.getElementById('propertyLocation').value,
         city: document.getElementById('propertyCity').value,
         state: document.getElementById('propertyState').value,
         total_area: parseFloat(document.getElementById('propertyArea').value) || null,
-        description: document.getElementById('propertyDescription').value
+        description: document.getElementById('propertyDescription').value,
+        coordinates: coordinates
     };
     
     try {

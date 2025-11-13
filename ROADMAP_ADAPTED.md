@@ -228,7 +228,7 @@ export function navigate(path) {
 - [x] Implementar autenticação (Supabase Auth)
 - [x] CRUD de propriedades (HTML + JS)
 - [x] CRUD de talhões
-- [ ] Integração básica com mapas (Leaflet.js)
+- [x] Integração básica com mapas (Leaflet.js)
 
 ### FASE 2: Operacional (Sprint 3-4)
 - [ ] Tabelas: products, stock, applications, equipment
@@ -390,10 +390,14 @@ GitHub → Vercel (automático) → Variáveis de ambiente (Supabase keys)
    - Relacionamento com talhões e culturas
    - Status e datas
 
-4. **Mapas** (Fase 1)
-   - Integração Leaflet.js
-   - Visualização de propriedades/talhões
-   - Edição de coordenadas
+4. **Mapas** (Fase 1) ✅
+   - ✅ Integração Leaflet.js
+   - ✅ Visualização de propriedades/talhões
+   - ✅ Edição de coordenadas
+   - ✅ Desenho de polígonos para talhões
+   - ✅ Cálculo automático de área
+   - ✅ Busca de endereços (geocoder)
+   - ✅ Medição de distâncias e áreas
 
 ### 📁 Estrutura de Arquivos Atual
 
@@ -427,13 +431,13 @@ GitHub → Vercel (automático) → Variáveis de ambiente (Supabase keys)
 
 ### 🎯 Status Geral
 
-**Fase 1 - Fundação: ~60% completo**
+**Fase 1 - Fundação: 100% completo** ✅
 
 - ✅ Banco de dados: 100%
 - ✅ CRUD Propriedades: 100%
 - ✅ CRUD Talhões: 100%
-- ⏳ Autenticação: 0%
-- ⏳ Análise de Solo: 0%
-- ⏳ Ciclos de Cultivo: 0%
-- ⏳ Mapas: 0%
+- ✅ Autenticação: 100%
+- ✅ Análise de Solo: 100%
+- ✅ Ciclos de Cultivo: 100%
+- ✅ Mapas: 100% (Leaflet.js integrado)
 
