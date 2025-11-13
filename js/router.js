@@ -4,13 +4,36 @@ const routes = {
     '/': 'pages/dashboard.html',
     '/dashboard': 'pages/dashboard.html',
     '/properties': 'pages/properties.html',
-    '/plots': 'pages/plots.html'
+    '/plots': 'pages/plots.html',
+    '/login': 'pages/login.html',
+    '/register': 'pages/register.html'
 };
 
 let currentPage = '';
 
 async function navigate(path) {
     if (currentPage === path) return;
+    
+    // Verificar autenticação para rotas protegidas
+    const protectedRoutes = ['/dashboard', '/properties', '/plots'];
+    const isProtectedRoute = protectedRoutes.includes(path);
+    
+    if (isProtectedRoute) {
+        const authenticated = await isAuthenticated();
+        if (!authenticated) {
+            currentPage = '/login';
+            window.history.pushState({ path: '/login' }, '', '/login');
+            path = '/login';
+        }
+    }
+    
+    // Se estiver autenticado e tentar acessar login/register, redirecionar para dashboard
+    if (path === '/login' || path === '/register') {
+        const authenticated = await isAuthenticated();
+        if (authenticated) {
+            path = '/dashboard';
+        }
+    }
     
     currentPage = path;
     window.history.pushState({ path }, '', path);
@@ -46,7 +69,7 @@ async function navigate(path) {
             <div class="error-page">
                 <h2>Página não encontrada</h2>
                 <p>Erro ao carregar: ${path}</p>
-                <button onclick="navigate('/')">Voltar ao início</button>
+                <button onclick="navigate('/dashboard')">Voltar ao início</button>
             </div>
         `;
     }
@@ -59,8 +82,33 @@ window.addEventListener('popstate', (e) => {
 });
 
 // Navegação inicial
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Aguardar scripts carregarem
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     const path = window.location.pathname || '/';
+    
+    // Verificar autenticação antes de navegar
+    const protectedRoutes = ['/dashboard', '/properties', '/plots'];
+    const isProtectedRoute = protectedRoutes.includes(path) || path === '/';
+    
+    if (isProtectedRoute) {
+        // Aguardar funções de auth estarem disponíveis
+        let retries = 0;
+        while (typeof isAuthenticated !== 'function' && retries < 20) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            retries++;
+        }
+        
+        if (typeof isAuthenticated === 'function') {
+            const authenticated = await isAuthenticated();
+            if (!authenticated) {
+                navigate('/login');
+                return;
+            }
+        }
+    }
+    
     // Se for a página inicial, redirecionar para dashboard
     if (path === '/') {
         navigate('/dashboard');

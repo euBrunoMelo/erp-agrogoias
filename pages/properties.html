@@ -175,6 +175,12 @@ async function deletePropertyConfirm(id) {
 
 // Aguardar Supabase carregar antes de executar
 async function initPropertiesPage() {
+    // Verificar autenticação
+    const authenticated = await requireAuth();
+    if (!authenticated) {
+        return;
+    }
+
     while (!window.supabaseClient) {
         await new Promise(resolve => setTimeout(resolve, 100));
     }

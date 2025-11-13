@@ -94,6 +94,30 @@ As tabelas estão prontas para criação no Supabase:
 
 Veja `supabase/QUICK_START.md` para instruções de criação.
 
+## 🔐 Autenticação
+
+O sistema usa Supabase Auth para autenticação:
+
+- **Login**: `/login`
+- **Registro**: `/register`
+- **Rotas protegidas**: Dashboard, Propriedades, Talhões
+- **RLS**: Row Level Security configurado em todas as tabelas
+
+### Configurar Autenticação
+
+1. Acesse o Supabase Dashboard → **Authentication**
+2. Configure **Email** provider
+3. **Desabilite** "Confirm email" para desenvolvimento
+4. Configure **Site URL** e **Redirect URLs**
+5. Veja `supabase/AUTH_SETUP.md` para detalhes
+
+### Testar Autenticação
+
+1. Execute as migrations no Supabase
+2. Acesse `/register` e crie uma conta
+3. Faça login em `/login`
+4. Acesse `/dashboard` (deve funcionar após login)
+
 ## 📝 Licença
 
 MIT

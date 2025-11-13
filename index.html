@@ -12,9 +12,11 @@
         <div class="nav-container">
             <h1 class="nav-logo">ERP AgroGoiás</h1>
             <ul class="nav-menu">
-                <li><a href="/" onclick="event.preventDefault(); navigate('/dashboard')">Dashboard</a></li>
-                <li><a href="/properties" onclick="event.preventDefault(); navigate('/properties')">Propriedades</a></li>
-                <li><a href="/plots" onclick="event.preventDefault(); navigate('/plots')">Talhões</a></li>
+                <li id="navDashboard"><a href="/" onclick="event.preventDefault(); navigate('/dashboard')">Dashboard</a></li>
+                <li id="navProperties"><a href="/properties" onclick="event.preventDefault(); navigate('/properties')">Propriedades</a></li>
+                <li id="navPlots"><a href="/plots" onclick="event.preventDefault(); navigate('/plots')">Talhões</a></li>
+                <li id="navLogin" style="display: none;"><a href="/login" onclick="event.preventDefault(); navigate('/login')">Login</a></li>
+                <li id="navLogout" style="display: none;"><a href="#" onclick="event.preventDefault(); handleLogout()">Sair</a></li>
             </ul>
         </div>
     </nav>
@@ -40,12 +42,78 @@
         </div>
     </main>
 
-    <!-- Scripts -->
+    <!-- Scripts (ordem importante) -->
     <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/properties.js"></script>
     <script src="js/plots.js"></script>
-    <script src="js/router.js"></script>
     <script src="app.js"></script>
+    <script src="js/router.js"></script>
+    
+    <script>
+    // Atualizar navbar baseado em autenticação
+    async function updateNavbar() {
+        // Aguardar funções de auth estarem disponíveis
+        if (typeof isAuthenticated !== 'function') {
+            setTimeout(updateNavbar, 100);
+            return;
+        }
+        
+        try {
+            const authenticated = await isAuthenticated();
+            const navDashboard = document.getElementById('navDashboard');
+            const navProperties = document.getElementById('navProperties');
+            const navPlots = document.getElementById('navPlots');
+            const navLogin = document.getElementById('navLogin');
+            const navLogout = document.getElementById('navLogout');
+            
+            if (authenticated) {
+                // Mostrar links autenticados
+                if (navDashboard) navDashboard.style.display = 'list-item';
+                if (navProperties) navProperties.style.display = 'list-item';
+                if (navPlots) navPlots.style.display = 'list-item';
+                if (navLogin) navLogin.style.display = 'none';
+                if (navLogout) navLogout.style.display = 'list-item';
+            } else {
+                // Mostrar apenas login
+                if (navDashboard) navDashboard.style.display = 'none';
+                if (navProperties) navProperties.style.display = 'none';
+                if (navPlots) navPlots.style.display = 'none';
+                if (navLogin) navLogin.style.display = 'list-item';
+                if (navLogout) navLogout.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar navbar:', error);
+        }
+    }
+    
+    async function handleLogout() {
+        if (typeof signOut === 'function') {
+            await signOut();
+            updateNavbar();
+        }
+    }
+    
+    // Atualizar navbar quando auth mudar
+    window.addEventListener('authStateChanged', () => {
+        setTimeout(updateNavbar, 100);
+    });
+    
+    // Atualizar navbar quando página carregar
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(updateNavbar, 1000);
+    });
+    
+    // Atualizar navbar periodicamente (apenas se funções estiverem disponíveis)
+    setInterval(() => {
+        if (typeof isAuthenticated === 'function') {
+            updateNavbar();
+        }
+    }, 3000);
+    
+    // Exportar handleLogout globalmente
+    window.handleLogout = handleLogout;
+    </script>
 </body>
 </html>
 

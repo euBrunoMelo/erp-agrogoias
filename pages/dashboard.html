@@ -16,6 +16,12 @@
 
 <script>
 async function loadDashboard() {
+    // Verificar autenticação
+    const authenticated = await requireAuth();
+    if (!authenticated) {
+        return;
+    }
+
     // Aguardar Supabase carregar
     while (!window.supabaseClient) {
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -38,6 +44,10 @@ async function loadDashboard() {
         }
     } catch (error) {
         console.error('Erro ao carregar dashboard:', error);
+        // Se erro de autenticação, redirecionar para login
+        if (error.message && error.message.includes('JWT')) {
+            navigate('/login');
+        }
     }
 }
 

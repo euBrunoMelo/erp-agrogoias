@@ -1,0 +1,109 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>ERP AgroGoiás</h1>
+            <p>Faça login para continuar</p>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)" class="auth-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    required 
+                    placeholder="seu@email.com"
+                    autocomplete="email"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    required 
+                    placeholder="••••••••"
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary btn-block">Entrar</button>
+            </div>
+
+            <div class="auth-footer">
+                <p>Não tem uma conta? <a href="#" onclick="event.preventDefault(); navigate('/register')">Cadastre-se</a></p>
+            </div>
+        </form>
+
+        <div id="loginError" class="error-message" style="display: none;"></div>
+    </div>
+</div>
+
+<script>
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errorDiv = document.getElementById('loginError');
+    const submitButton = event.target.querySelector('button[type="submit"]');
+
+    // Limpar erros anteriores
+    errorDiv.style.display = 'none';
+    errorDiv.textContent = '';
+    
+    // Desabilitar botão
+    submitButton.disabled = true;
+    submitButton.textContent = 'Entrando...';
+
+    try {
+        // Aguardar Supabase carregar
+        while (!window.supabaseClient) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        const { data, error } = await signIn(email, password);
+
+        if (error) {
+            errorDiv.textContent = error.message;
+            errorDiv.style.display = 'block';
+            submitButton.disabled = false;
+            submitButton.textContent = 'Entrar';
+        } else {
+            // Redirecionar será feito pelo auth listener
+            navigate('/dashboard');
+        }
+    } catch (error) {
+        console.error('Erro ao fazer login:', error);
+        errorDiv.textContent = error.message || 'Erro ao fazer login';
+        errorDiv.style.display = 'block';
+        submitButton.disabled = false;
+        submitButton.textContent = 'Entrar';
+    }
+}
+
+// Verificar se já está autenticado
+async function checkAuth() {
+    const authenticated = await isAuthenticated();
+    if (authenticated) {
+        navigate('/dashboard');
+    }
+}
+
+// Executar quando página carregar
+window.addEventListener('pageLoaded', () => {
+    if (window.location.pathname === '/login') {
+        setTimeout(checkAuth, 100);
+    }
+});
+
+// Executar na primeira vez
+if (window.location.pathname === '/login' || document.getElementById('loginForm')) {
+    setTimeout(checkAuth, 500);
+}
+</script>
+
