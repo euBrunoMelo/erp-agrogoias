@@ -225,7 +225,7 @@ export function navigate(path) {
 
 ### FASE 1: Fundação (Sprint 1-2)
 - [x] Criar tabelas no Supabase (properties, plots, soil_analysis, crops, culture_varieties, crop_cycles)
-- [ ] Implementar autenticação (Supabase Auth)
+- [x] Implementar autenticação (Supabase Auth)
 - [x] CRUD de propriedades (HTML + JS)
 - [x] CRUD de talhões
 - [ ] Integração básica com mapas (Leaflet.js)
