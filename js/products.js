@@ -135,11 +135,15 @@ async function deleteProduct(id) {
 }
 
 // Função auxiliar para mostrar notificação
+// Armazenar referência à função global antes de definir a local
+const _globalShowNotification = window.showNotification;
+
 function showNotification(message, type = 'info') {
-    // Verificar se existe função global de notificação
-    if (typeof window.showNotification === 'function') {
-        window.showNotification(message, type);
+    // Usar a referência global armazenada (se existir e for diferente)
+    if (typeof _globalShowNotification === 'function' && _globalShowNotification !== showNotification) {
+        _globalShowNotification(message, type);
     } else {
+        // Fallback: apenas log no console
         console.log(`[${type.toUpperCase()}] ${message}`);
     }
 }
