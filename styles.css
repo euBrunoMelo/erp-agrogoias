@@ -91,6 +91,34 @@ body {
     font-weight: 600;
     opacity: 0;
     animation: fadeInDelay 0.8s ease-in 0.6s forwards;
+    margin-bottom: 20px;
+}
+
+.db-status {
+    margin-top: 20px;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    opacity: 0;
+    animation: fadeInDelay 0.8s ease-in 0.9s forwards;
+}
+
+.db-status.success {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    color: #166534;
+}
+
+.db-status.error {
+    background: #fef2f2;
+    border: 2px solid #fca5a5;
+    color: #991b1b;
+}
+
+.db-status-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .status-dot {
