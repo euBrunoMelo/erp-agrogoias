@@ -17,36 +17,73 @@ const routes = {
 
 let currentPage = '';
 
+// Flag para evitar loops de redirecionamento
+let isNavigating = false;
+
 async function navigate(path) {
+    // Evitar navegação recursiva
+    if (isNavigating) {
+        console.log('Navegação já em andamento, ignorando:', path);
+        return;
+    }
+    
     if (currentPage === path) return;
     
-    // Verificar autenticação para rotas protegidas
-    const protectedRoutes = ['/dashboard', '/properties', '/plots', '/soil-analysis', '/crop-cycles', '/products', '/stock', '/applications', '/equipment'];
-    const isProtectedRoute = protectedRoutes.includes(path);
-    
-    if (isProtectedRoute) {
-        const authenticated = await isAuthenticated();
-        if (!authenticated) {
-            currentPage = '/login';
-            window.history.pushState({ path: '/login' }, '', '/login');
-            path = '/login';
-        }
-    }
-    
-    // Se estiver autenticado e tentar acessar login/register, redirecionar para dashboard
-    if (path === '/login' || path === '/register') {
-        const authenticated = await isAuthenticated();
-        if (authenticated) {
-            path = '/dashboard';
-        }
-    }
-    
-    currentPage = path;
-    window.history.pushState({ path }, '', path);
-    
-    const route = routes[path] || routes['/'];
+    isNavigating = true;
     
     try {
+        // Verificar autenticação para rotas protegidas
+        const protectedRoutes = ['/dashboard', '/properties', '/plots', '/soil-analysis', '/crop-cycles', '/products', '/stock', '/applications', '/equipment'];
+        const isProtectedRoute = protectedRoutes.includes(path);
+        
+        if (isProtectedRoute) {
+            // Aguardar função isAuthenticated estar disponível
+            let retries = 0;
+            while (typeof isAuthenticated !== 'function' && retries < 10) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                retries++;
+            }
+            
+            if (typeof isAuthenticated === 'function') {
+                const authenticated = await isAuthenticated();
+                if (!authenticated) {
+                    isNavigating = false;
+                    currentPage = '/login';
+                    window.history.pushState({ path: '/login' }, '', '/login');
+                    path = '/login';
+                    // Usar window.location para evitar loop
+                    window.location.href = '/login';
+                    return;
+                }
+            }
+        }
+        
+        // Se estiver autenticado e tentar acessar login/register, redirecionar para dashboard
+        if (path === '/login' || path === '/register') {
+            // Aguardar função isAuthenticated estar disponível
+            let retries = 0;
+            while (typeof isAuthenticated !== 'function' && retries < 10) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                retries++;
+            }
+            
+            if (typeof isAuthenticated === 'function') {
+                const authenticated = await isAuthenticated();
+                if (authenticated) {
+                    isNavigating = false;
+                    path = '/dashboard';
+                    // Usar window.location para evitar loop
+                    window.location.href = '/dashboard';
+                    return;
+                }
+            }
+        }
+    
+        currentPage = path;
+        window.history.pushState({ path }, '', path);
+        
+        const route = routes[path] || routes['/'];
+        
         const response = await fetch(route);
         if (!response.ok) throw new Error('Página não encontrada');
         
@@ -76,13 +113,18 @@ async function navigate(path) {
         }
     } catch (error) {
         console.error('Erro ao carregar página:', error);
-        document.getElementById('app').innerHTML = `
-            <div class="error-page">
-                <h2>Página não encontrada</h2>
-                <p>Erro ao carregar: ${path}</p>
-                <button onclick="navigate('/dashboard')">Voltar ao início</button>
-            </div>
-        `;
+        const app = document.getElementById('app');
+        if (app) {
+            app.innerHTML = `
+                <div class="error-page">
+                    <h2>Página não encontrada</h2>
+                    <p>Erro ao carregar: ${path}</p>
+                    <button onclick="window.location.href='/dashboard'">Voltar ao início</button>
+                </div>
+            `;
+        }
+    } finally {
+        isNavigating = false;
     }
 }
 

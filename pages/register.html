@@ -152,23 +152,48 @@ async function handleRegister(event) {
     }
 }
 
-// Verificar se já está autenticado
+// Verificar se já está autenticado (apenas uma vez)
+let authCheckDone = false;
+
 async function checkAuth() {
-    const authenticated = await isAuthenticated();
-    if (authenticated) {
-        navigate('/dashboard');
+    // Evitar múltiplas verificações simultâneas
+    if (authCheckDone) return;
+    authCheckDone = true;
+    
+    try {
+        // Aguardar funções de auth estarem disponíveis
+        let retries = 0;
+        while (typeof isAuthenticated !== 'function' && retries < 20) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            retries++;
+        }
+        
+        if (typeof isAuthenticated === 'function') {
+            const authenticated = await isAuthenticated();
+            if (authenticated) {
+                // Usar window.location para evitar loop no router
+                window.location.href = '/dashboard';
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao verificar autenticação:', error);
+        authCheckDone = false; // Permitir nova tentativa em caso de erro
     }
 }
 
-// Executar quando página carregar
-window.addEventListener('pageLoaded', () => {
-    if (window.location.pathname === '/register') {
-        setTimeout(checkAuth, 100);
-    }
-});
+// Executar quando página carregar (apenas uma vez)
+let pageLoadedHandler = null;
+if (!pageLoadedHandler) {
+    pageLoadedHandler = () => {
+        if (window.location.pathname === '/register' && !authCheckDone) {
+            setTimeout(checkAuth, 100);
+        }
+    };
+    window.addEventListener('pageLoaded', pageLoadedHandler);
+}
 
-// Executar na primeira vez
-if (window.location.pathname === '/register' || document.getElementById('registerForm')) {
+// Executar na primeira vez (apenas se ainda não foi executado)
+if ((window.location.pathname === '/register' || document.getElementById('registerForm')) && !authCheckDone) {
     setTimeout(checkAuth, 500);
 }
 </script>
