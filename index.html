@@ -15,6 +15,8 @@
                 <li id="navDashboard"><a href="/" onclick="event.preventDefault(); navigate('/dashboard')">Dashboard</a></li>
                 <li id="navProperties"><a href="/properties" onclick="event.preventDefault(); navigate('/properties')">Propriedades</a></li>
                 <li id="navPlots"><a href="/plots" onclick="event.preventDefault(); navigate('/plots')">Talhões</a></li>
+                <li id="navSoilAnalysis"><a href="/soil-analysis" onclick="event.preventDefault(); navigate('/soil-analysis')">Análises de Solo</a></li>
+                <li id="navCropCycles"><a href="/crop-cycles" onclick="event.preventDefault(); navigate('/crop-cycles')">Ciclos de Cultivo</a></li>
                 <li id="navLogin" style="display: none;"><a href="/login" onclick="event.preventDefault(); navigate('/login')">Login</a></li>
                 <li id="navLogout" style="display: none;"><a href="#" onclick="event.preventDefault(); handleLogout()">Sair</a></li>
             </ul>
@@ -47,6 +49,8 @@
     <script src="js/auth.js"></script>
     <script src="js/properties.js"></script>
     <script src="js/plots.js"></script>
+    <script src="js/soil_analysis.js"></script>
+    <script src="js/crop_cycles.js"></script>
     <script src="app.js"></script>
     <script src="js/router.js"></script>
     
@@ -64,6 +68,8 @@
             const navDashboard = document.getElementById('navDashboard');
             const navProperties = document.getElementById('navProperties');
             const navPlots = document.getElementById('navPlots');
+            const navSoilAnalysis = document.getElementById('navSoilAnalysis');
+            const navCropCycles = document.getElementById('navCropCycles');
             const navLogin = document.getElementById('navLogin');
             const navLogout = document.getElementById('navLogout');
             
@@ -72,6 +78,8 @@
                 if (navDashboard) navDashboard.style.display = 'list-item';
                 if (navProperties) navProperties.style.display = 'list-item';
                 if (navPlots) navPlots.style.display = 'list-item';
+                if (navSoilAnalysis) navSoilAnalysis.style.display = 'list-item';
+                if (navCropCycles) navCropCycles.style.display = 'list-item';
                 if (navLogin) navLogin.style.display = 'none';
                 if (navLogout) navLogout.style.display = 'list-item';
             } else {
@@ -79,6 +87,8 @@
                 if (navDashboard) navDashboard.style.display = 'none';
                 if (navProperties) navProperties.style.display = 'none';
                 if (navPlots) navPlots.style.display = 'none';
+                if (navSoilAnalysis) navSoilAnalysis.style.display = 'none';
+                if (navCropCycles) navCropCycles.style.display = 'none';
                 if (navLogin) navLogin.style.display = 'list-item';
                 if (navLogout) navLogout.style.display = 'none';
             }

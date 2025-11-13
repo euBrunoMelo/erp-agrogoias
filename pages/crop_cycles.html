@@ -1,0 +1,423 @@
+<div class="page-container">
+    <div class="page-header">
+        <h1>Ciclos de Cultivo</h1>
+        <button onclick="showCropCycleForm()" class="btn-primary">+ Novo Ciclo</button>
+    </div>
+
+    <div class="filters">
+        <label for="plotFilter">Filtrar por Talhão:</label>
+        <select id="plotFilter" onchange="loadCropCycles()">
+            <option value="">Todos os talhões</option>
+        </select>
+        <label for="statusFilter" style="margin-left: 1rem;">Filtrar por Status:</label>
+        <select id="statusFilter" onchange="loadCropCycles()">
+            <option value="">Todos os status</option>
+            <option value="planted">Plantado</option>
+            <option value="growing">Em Crescimento</option>
+            <option value="harvested">Colhido</option>
+            <option value="cancelled">Cancelado</option>
+        </select>
+    </div>
+
+    <div id="cropCyclesList" class="properties-list">
+        <p>Carregando...</p>
+    </div>
+
+    <!-- Modal de Formulário -->
+    <div id="cropCycleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Novo Ciclo de Cultivo</h2>
+                <button onclick="closeCropCycleForm()" class="close-btn">&times;</button>
+            </div>
+            <form id="cropCycleForm" onsubmit="saveCropCycle(event)">
+                <input type="hidden" id="cropCycleId">
+                
+                <div class="form-group">
+                    <label for="plotId">Talhão *</label>
+                    <select id="plotId" required onchange="loadPlotArea()">
+                        <option value="">Selecione um talhão</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cropId">Cultura *</label>
+                    <select id="cropId" required onchange="loadVarieties()">
+                        <option value="">Selecione uma cultura</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="varietyId">Variedade</label>
+                    <select id="varietyId">
+                        <option value="">Selecione uma variedade (opcional)</option>
+                    </select>
+                    <input type="text" id="varietyName" placeholder="Ou digite o nome da variedade" style="margin-top: 0.5rem;">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="plantingDate">Data de Plantio *</label>
+                        <input type="date" id="plantingDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expectedHarvest">Previsão de Colheita</label>
+                        <input type="date" id="expectedHarvest">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="area">Área (hectares) *</label>
+                        <input type="number" id="area" step="0.01" min="0" required placeholder="Ex: 10.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="density">Densidade (plantas/ha)</label>
+                        <input type="number" id="density" step="0.01" min="0" placeholder="Ex: 250000">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="estimatedYield">Produtividade Estimada (kg/ha)</label>
+                        <input type="number" id="estimatedYield" step="0.01" min="0" placeholder="Ex: 3500">
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status">
+                            <option value="planted">Plantado</option>
+                            <option value="growing">Em Crescimento</option>
+                            <option value="harvested">Colhido</option>
+                            <option value="cancelled">Cancelado</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="costs">Custos (R$)</label>
+                        <input type="number" id="costs" step="0.01" min="0" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="revenue">Receita (R$)</label>
+                        <input type="number" id="revenue" step="0.01" min="0" placeholder="0.00">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="actualHarvest">Data de Colheita Real</label>
+                    <input type="date" id="actualHarvest">
+                </div>
+                
+                <div class="form-group">
+                    <label for="actualYield">Produtividade Real (kg/ha)</label>
+                    <input type="number" id="actualYield" step="0.01" min="0" placeholder="Ex: 3200">
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">Observações</label>
+                    <textarea id="notes" rows="3" placeholder="Anotações sobre o ciclo de cultivo..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="closeCropCycleForm()" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let editingCropCycleId = null;
+
+async function loadPlots() {
+    try {
+        const plots = await getPlots();
+        const plotSelect = document.getElementById('plotId');
+        const filterSelect = document.getElementById('plotFilter');
+        
+        // Limpar opções existentes (exceto a primeira)
+        plotSelect.innerHTML = '<option value="">Selecione um talhão</option>';
+        filterSelect.innerHTML = '<option value="">Todos os talhões</option>';
+        
+        plots.forEach(plot => {
+            const option = document.createElement('option');
+            option.value = plot.id;
+            option.textContent = `${plot.name} - ${plot.properties?.name || 'Sem propriedade'}`;
+            option.dataset.area = plot.area || '';
+            plotSelect.appendChild(option);
+            
+            const filterOption = document.createElement('option');
+            filterOption.value = plot.id;
+            filterOption.textContent = `${plot.name} - ${plot.properties?.name || 'Sem propriedade'}`;
+            filterSelect.appendChild(filterOption);
+        });
+    } catch (error) {
+        console.error('Erro ao carregar talhões:', error);
+    }
+}
+
+async function loadCrops() {
+    try {
+        const crops = await getCrops();
+        const cropSelect = document.getElementById('cropId');
+        
+        cropSelect.innerHTML = '<option value="">Selecione uma cultura</option>';
+        
+        crops.forEach(crop => {
+            const option = document.createElement('option');
+            option.value = crop.id;
+            option.textContent = crop.name;
+            cropSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Erro ao carregar culturas:', error);
+    }
+}
+
+async function loadVarieties() {
+    const cropId = document.getElementById('cropId').value;
+    const varietySelect = document.getElementById('varietyId');
+    
+    varietySelect.innerHTML = '<option value="">Selecione uma variedade (opcional)</option>';
+    
+    if (!cropId) return;
+    
+    try {
+        const varieties = await getCultureVarieties(cropId);
+        varieties.forEach(variety => {
+            const option = document.createElement('option');
+            option.value = variety.id;
+            option.textContent = variety.name;
+            varietySelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Erro ao carregar variedades:', error);
+    }
+}
+
+function loadPlotArea() {
+    const plotSelect = document.getElementById('plotId');
+    const selectedOption = plotSelect.options[plotSelect.selectedIndex];
+    const area = selectedOption?.dataset.area;
+    
+    if (area) {
+        document.getElementById('area').value = area;
+    }
+}
+
+function getStatusLabel(status) {
+    const labels = {
+        'planted': 'Plantado',
+        'growing': 'Em Crescimento',
+        'harvested': 'Colhido',
+        'cancelled': 'Cancelado'
+    };
+    return labels[status] || status;
+}
+
+function getStatusColor(status) {
+    const colors = {
+        'planted': '#3b82f6',
+        'growing': '#16a34a',
+        'harvested': '#f59e0b',
+        'cancelled': '#ef4444'
+    };
+    return colors[status] || '#666';
+}
+
+async function loadCropCycles() {
+    const list = document.getElementById('cropCyclesList');
+    list.innerHTML = '<p>Carregando...</p>';
+    
+    try {
+        const plotId = document.getElementById('plotFilter')?.value || null;
+        const status = document.getElementById('statusFilter')?.value || null;
+        let cycles = await getCropCycles(plotId);
+        
+        // Filtrar por status se selecionado
+        if (status) {
+            cycles = cycles.filter(cycle => cycle.status === status);
+        }
+        
+        if (cycles.length === 0) {
+            list.innerHTML = '<p class="empty-state">Nenhum ciclo de cultivo cadastrado. Clique em "Novo Ciclo" para começar.</p>';
+            return;
+        }
+        
+        list.innerHTML = cycles.map(cycle => {
+            const plotName = cycle.plots?.name || 'Talhão desconhecido';
+            const propertyName = cycle.plots?.properties?.name || '';
+            const cropName = cycle.crops?.name || 'Cultura desconhecida';
+            const varietyName = cycle.variety_name || cycle.culture_varieties?.name || '';
+            const plantingDate = new Date(cycle.planting_date).toLocaleDateString('pt-BR');
+            const statusColor = getStatusColor(cycle.status);
+            const statusLabel = getStatusLabel(cycle.status);
+            
+            return `
+                <div class="property-card">
+                    <div class="property-info">
+                        <h3>${cropName} ${varietyName ? `- ${varietyName}` : ''}</h3>
+                        <p><strong>Talhão:</strong> ${plotName} ${propertyName ? `- ${propertyName}` : ''}</p>
+                        <p><strong>Plantio:</strong> ${plantingDate}</p>
+                        <p><strong>Área:</strong> ${cycle.area} ha</p>
+                        ${cycle.expected_harvest ? `<p><strong>Previsão de Colheita:</strong> ${new Date(cycle.expected_harvest).toLocaleDateString('pt-BR')}</p>` : ''}
+                        ${cycle.actual_harvest ? `<p><strong>Colheita Real:</strong> ${new Date(cycle.actual_harvest).toLocaleDateString('pt-BR')}</p>` : ''}
+                        ${cycle.estimated_yield ? `<p><strong>Produtividade Estimada:</strong> ${cycle.estimated_yield} kg/ha</p>` : ''}
+                        ${cycle.actual_yield ? `<p><strong>Produtividade Real:</strong> ${cycle.actual_yield} kg/ha</p>` : ''}
+                        ${cycle.costs ? `<p><strong>Custos:</strong> R$ ${parseFloat(cycle.costs).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>` : ''}
+                        ${cycle.revenue ? `<p><strong>Receita:</strong> R$ ${parseFloat(cycle.revenue).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>` : ''}
+                        <p><strong>Status:</strong> <span style="color: ${statusColor}; font-weight: bold;">${statusLabel}</span></p>
+                    </div>
+                    <div class="property-actions">
+                        <button onclick="editCropCycle('${cycle.id}')" class="btn-edit">Editar</button>
+                        <button onclick="deleteCropCycleConfirm('${cycle.id}')" class="btn-delete">Excluir</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        list.innerHTML = '<p class="error">Erro ao carregar ciclos de cultivo</p>';
+    }
+}
+
+function showCropCycleForm(cycleId = null) {
+    editingCropCycleId = cycleId;
+    const modal = document.getElementById('cropCycleModal');
+    const form = document.getElementById('cropCycleForm');
+    const title = document.getElementById('modalTitle');
+    
+    if (cycleId) {
+        title.textContent = 'Editar Ciclo de Cultivo';
+        loadCropCycleForEdit(cycleId);
+    } else {
+        title.textContent = 'Novo Ciclo de Cultivo';
+        form.reset();
+        document.getElementById('cropCycleId').value = '';
+        // Definir data padrão como hoje
+        document.getElementById('plantingDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('status').value = 'planted';
+    }
+    
+    modal.classList.add('show');
+}
+
+function closeCropCycleForm() {
+    document.getElementById('cropCycleModal').classList.remove('show');
+    editingCropCycleId = null;
+}
+
+async function loadCropCycleForEdit(id) {
+    try {
+        const cycle = await getCropCycleById(id);
+        if (cycle) {
+            document.getElementById('cropCycleId').value = cycle.id;
+            document.getElementById('plotId').value = cycle.plot_id || '';
+            document.getElementById('cropId').value = cycle.crop_id || '';
+            
+            // Carregar variedades para a cultura selecionada
+            if (cycle.crop_id) {
+                await loadVarieties();
+                document.getElementById('varietyId').value = cycle.variety_id || '';
+            }
+            
+            document.getElementById('varietyName').value = cycle.variety_name || '';
+            document.getElementById('plantingDate').value = cycle.planting_date || '';
+            document.getElementById('expectedHarvest').value = cycle.expected_harvest || '';
+            document.getElementById('actualHarvest').value = cycle.actual_harvest || '';
+            document.getElementById('area').value = cycle.area || '';
+            document.getElementById('density').value = cycle.density || '';
+            document.getElementById('estimatedYield').value = cycle.estimated_yield || '';
+            document.getElementById('actualYield').value = cycle.actual_yield || '';
+            document.getElementById('status').value = cycle.status || 'planted';
+            document.getElementById('costs').value = cycle.costs || '';
+            document.getElementById('revenue').value = cycle.revenue || '';
+            document.getElementById('notes').value = cycle.notes || '';
+        }
+    } catch (error) {
+        console.error('Erro ao carregar ciclo de cultivo:', error);
+    }
+}
+
+async function saveCropCycle(event) {
+    event.preventDefault();
+    
+    const id = document.getElementById('cropCycleId').value;
+    const cycle = {
+        plot_id: document.getElementById('plotId').value,
+        crop_id: document.getElementById('cropId').value,
+        variety_id: document.getElementById('varietyId').value || null,
+        variety_name: document.getElementById('varietyName').value || null,
+        planting_date: document.getElementById('plantingDate').value,
+        expected_harvest: document.getElementById('expectedHarvest').value || null,
+        actual_harvest: document.getElementById('actualHarvest').value || null,
+        area: parseFloat(document.getElementById('area').value),
+        density: document.getElementById('density').value ? parseFloat(document.getElementById('density').value) : null,
+        estimated_yield: document.getElementById('estimatedYield').value ? parseFloat(document.getElementById('estimatedYield').value) : null,
+        actual_yield: document.getElementById('actualYield').value ? parseFloat(document.getElementById('actualYield').value) : null,
+        status: document.getElementById('status').value,
+        costs: document.getElementById('costs').value ? parseFloat(document.getElementById('costs').value) : 0,
+        revenue: document.getElementById('revenue').value ? parseFloat(document.getElementById('revenue').value) : 0,
+        notes: document.getElementById('notes').value || null
+    };
+    
+    try {
+        if (id) {
+            await updateCropCycle(id, cycle);
+        } else {
+            await createCropCycle(cycle);
+        }
+        closeCropCycleForm();
+        loadCropCycles();
+    } catch (error) {
+        console.error('Erro ao salvar ciclo de cultivo:', error);
+    }
+}
+
+async function editCropCycle(id) {
+    showCropCycleForm(id);
+}
+
+async function deleteCropCycleConfirm(id) {
+    if (confirm('Tem certeza que deseja excluir este ciclo de cultivo? Esta ação não pode ser desfeita.')) {
+        try {
+            await deleteCropCycle(id);
+            loadCropCycles();
+        } catch (error) {
+            console.error('Erro ao excluir ciclo de cultivo:', error);
+        }
+    }
+}
+
+// Aguardar Supabase carregar antes de executar
+async function initCropCyclesPage() {
+    // Verificar autenticação
+    const authenticated = await requireAuth();
+    if (!authenticated) {
+        return;
+    }
+
+    while (!window.supabaseClient) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    supabase = window.supabaseClient;
+    
+    await loadPlots();
+    await loadCrops();
+    loadCropCycles();
+}
+
+// Carregar ciclos ao carregar a página
+window.addEventListener('pageLoaded', () => {
+    if (window.location.pathname === '/crop-cycles') {
+        setTimeout(initCropCyclesPage, 100);
+    }
+});
+
+// Carregar na primeira vez
+if (window.location.pathname === '/crop-cycles' || document.getElementById('cropCyclesList')) {
+    setTimeout(initCropCyclesPage, 500);
+}
+</script>
+

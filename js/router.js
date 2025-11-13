@@ -5,6 +5,8 @@ const routes = {
     '/dashboard': 'pages/dashboard.html',
     '/properties': 'pages/properties.html',
     '/plots': 'pages/plots.html',
+    '/soil-analysis': 'pages/soil_analysis.html',
+    '/crop-cycles': 'pages/crop_cycles.html',
     '/login': 'pages/login.html',
     '/register': 'pages/register.html'
 };
@@ -15,7 +17,7 @@ async function navigate(path) {
     if (currentPage === path) return;
     
     // Verificar autenticação para rotas protegidas
-    const protectedRoutes = ['/dashboard', '/properties', '/plots'];
+    const protectedRoutes = ['/dashboard', '/properties', '/plots', '/soil-analysis', '/crop-cycles'];
     const isProtectedRoute = protectedRoutes.includes(path);
     
     if (isProtectedRoute) {
@@ -89,7 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname || '/';
     
     // Verificar autenticação antes de navegar
-    const protectedRoutes = ['/dashboard', '/properties', '/plots'];
+    const protectedRoutes = ['/dashboard', '/properties', '/plots', '/soil-analysis', '/crop-cycles'];
     const isProtectedRoute = protectedRoutes.includes(path) || path === '/';
     
     if (isProtectedRoute) {

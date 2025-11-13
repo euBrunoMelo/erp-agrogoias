@@ -11,6 +11,16 @@
             <p id="plotsCount">Carregando...</p>
             <button onclick="navigate('/plots')" class="btn-primary">Gerenciar</button>
         </div>
+        <div class="dashboard-card">
+            <h3>Análises de Solo</h3>
+            <p id="soilAnalysesCount">Carregando...</p>
+            <button onclick="navigate('/soil-analysis')" class="btn-primary">Gerenciar</button>
+        </div>
+        <div class="dashboard-card">
+            <h3>Ciclos de Cultivo</h3>
+            <p id="cropCyclesCount">Carregando...</p>
+            <button onclick="navigate('/crop-cycles')" class="btn-primary">Gerenciar</button>
+        </div>
     </div>
 </div>
 
@@ -41,6 +51,18 @@ async function loadDashboard() {
         const plotsCountEl = document.getElementById('plotsCount');
         if (plotsCountEl) {
             plotsCountEl.textContent = `${plots.length} talhão(ões)`;
+        }
+        
+        const soilAnalyses = await getSoilAnalyses();
+        const soilAnalysesCountEl = document.getElementById('soilAnalysesCount');
+        if (soilAnalysesCountEl) {
+            soilAnalysesCountEl.textContent = `${soilAnalyses.length} análise(s)`;
+        }
+        
+        const cropCycles = await getCropCycles();
+        const cropCyclesCountEl = document.getElementById('cropCyclesCount');
+        if (cropCyclesCountEl) {
+            cropCyclesCountEl.textContent = `${cropCycles.length} ciclo(s)`;
         }
     } catch (error) {
         console.error('Erro ao carregar dashboard:', error);
