@@ -62,6 +62,23 @@
                 <span>Ciclos de Cultivo</span>
             </a></li>
             <li class="sidebar-separator"></li>
+            <li id="sidebarProducts"><a href="/products" onclick="event.preventDefault(); closeMenu(); navigate('/products')">
+                <span style="font-size: 1.1rem;">📦</span>
+                <span>Produtos</span>
+            </a></li>
+            <li id="sidebarStock"><a href="/stock" onclick="event.preventDefault(); closeMenu(); navigate('/stock')">
+                <span style="font-size: 1.1rem;">📊</span>
+                <span>Estoque</span>
+            </a></li>
+            <li id="sidebarApplications"><a href="/applications" onclick="event.preventDefault(); closeMenu(); navigate('/applications')">
+                <span style="font-size: 1.1rem;">💉</span>
+                <span>Aplicações</span>
+            </a></li>
+            <li id="sidebarEquipment"><a href="/equipment" onclick="event.preventDefault(); closeMenu(); navigate('/equipment')">
+                <span style="font-size: 1.1rem;">🚜</span>
+                <span>Equipamentos</span>
+            </a></li>
+            <li class="sidebar-separator"></li>
             <li id="sidebarLogin" style="display: none;"><a href="/login" onclick="event.preventDefault(); closeMenu(); navigate('/login')">
                 <span style="font-size: 1.1rem;">🔐</span>
                 <span>Login</span>
@@ -112,6 +129,10 @@
     <script src="js/plots.js"></script>
     <script src="js/soil_analysis.js"></script>
     <script src="js/crop_cycles.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/stock.js"></script>
+    <script src="js/applications.js"></script>
+    <script src="js/equipment.js"></script>
     <script src="app.js"></script>
     <script src="js/router.js"></script>
     
@@ -157,6 +178,10 @@
             const sidebarPlots = document.getElementById('sidebarPlots');
             const sidebarSoilAnalysis = document.getElementById('sidebarSoilAnalysis');
             const sidebarCropCycles = document.getElementById('sidebarCropCycles');
+            const sidebarProducts = document.getElementById('sidebarProducts');
+            const sidebarStock = document.getElementById('sidebarStock');
+            const sidebarApplications = document.getElementById('sidebarApplications');
+            const sidebarEquipment = document.getElementById('sidebarEquipment');
             const sidebarLogin = document.getElementById('sidebarLogin');
             const sidebarLogout = document.getElementById('sidebarLogout');
             
@@ -172,6 +197,10 @@
                 if (sidebarPlots) sidebarPlots.style.display = 'list-item';
                 if (sidebarSoilAnalysis) sidebarSoilAnalysis.style.display = 'list-item';
                 if (sidebarCropCycles) sidebarCropCycles.style.display = 'list-item';
+                if (sidebarProducts) sidebarProducts.style.display = 'list-item';
+                if (sidebarStock) sidebarStock.style.display = 'list-item';
+                if (sidebarApplications) sidebarApplications.style.display = 'list-item';
+                if (sidebarEquipment) sidebarEquipment.style.display = 'list-item';
                 if (sidebarLogin) sidebarLogin.style.display = 'none';
                 if (sidebarLogout) sidebarLogout.style.display = 'list-item';
             } else {
@@ -186,6 +215,10 @@
                 if (sidebarPlots) sidebarPlots.style.display = 'none';
                 if (sidebarSoilAnalysis) sidebarSoilAnalysis.style.display = 'none';
                 if (sidebarCropCycles) sidebarCropCycles.style.display = 'none';
+                if (sidebarProducts) sidebarProducts.style.display = 'none';
+                if (sidebarStock) sidebarStock.style.display = 'none';
+                if (sidebarApplications) sidebarApplications.style.display = 'none';
+                if (sidebarEquipment) sidebarEquipment.style.display = 'none';
                 if (sidebarLogin) sidebarLogin.style.display = 'list-item';
                 if (sidebarLogout) sidebarLogout.style.display = 'none';
             }

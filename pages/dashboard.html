@@ -25,6 +25,26 @@
                     <p id="cropCyclesCount">Carregando...</p>
                     <button onclick="navigate('/crop-cycles')" class="btn-primary">Gerenciar</button>
                 </div>
+                <div class="dashboard-card">
+                    <h3>Produtos</h3>
+                    <p id="productsCount">Carregando...</p>
+                    <button onclick="navigate('/products')" class="btn-primary">Gerenciar</button>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Estoque</h3>
+                    <p id="stockCount">Carregando...</p>
+                    <button onclick="navigate('/stock')" class="btn-primary">Gerenciar</button>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Aplicações</h3>
+                    <p id="applicationsCount">Carregando...</p>
+                    <button onclick="navigate('/applications')" class="btn-primary">Gerenciar</button>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Equipamentos</h3>
+                    <p id="equipmentCount">Carregando...</p>
+                    <button onclick="navigate('/equipment')" class="btn-primary">Gerenciar</button>
+                </div>
             </div>
         </div>
         
@@ -87,6 +107,30 @@ async function loadDashboard() {
         const cropCyclesCountEl = document.getElementById('cropCyclesCount');
         if (cropCyclesCountEl) {
             cropCyclesCountEl.textContent = `${cropCycles.length} ciclo(s)`;
+        }
+        
+        const products = await getProducts();
+        const productsCountEl = document.getElementById('productsCount');
+        if (productsCountEl) {
+            productsCountEl.textContent = `${products.length} produto(s)`;
+        }
+        
+        const stock = await getStock();
+        const stockCountEl = document.getElementById('stockCount');
+        if (stockCountEl) {
+            stockCountEl.textContent = `${stock.length} item(ns)`;
+        }
+        
+        const applications = await getApplications();
+        const applicationsCountEl = document.getElementById('applicationsCount');
+        if (applicationsCountEl) {
+            applicationsCountEl.textContent = `${applications.length} aplicação(ões)`;
+        }
+        
+        const equipment = await getEquipment();
+        const equipmentCountEl = document.getElementById('equipmentCount');
+        if (equipmentCountEl) {
+            equipmentCountEl.textContent = `${equipment.length} equipamento(s)`;
         }
         
         // Carregar mapa com propriedades e talhões

@@ -7,6 +7,10 @@ const routes = {
     '/plots': 'pages/plots.html',
     '/soil-analysis': 'pages/soil_analysis.html',
     '/crop-cycles': 'pages/crop_cycles.html',
+    '/products': 'pages/products.html',
+    '/stock': 'pages/stock.html',
+    '/applications': 'pages/applications.html',
+    '/equipment': 'pages/equipment.html',
     '/login': 'pages/login.html',
     '/register': 'pages/register.html'
 };
@@ -17,7 +21,7 @@ async function navigate(path) {
     if (currentPage === path) return;
     
     // Verificar autenticação para rotas protegidas
-    const protectedRoutes = ['/dashboard', '/properties', '/plots', '/soil-analysis', '/crop-cycles'];
+    const protectedRoutes = ['/dashboard', '/properties', '/plots', '/soil-analysis', '/crop-cycles', '/products', '/stock', '/applications', '/equipment'];
     const isProtectedRoute = protectedRoutes.includes(path);
     
     if (isProtectedRoute) {
@@ -96,7 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname || '/';
     
     // Verificar autenticação antes de navegar
-    const protectedRoutes = ['/dashboard', '/properties', '/plots', '/soil-analysis', '/crop-cycles'];
+    const protectedRoutes = ['/dashboard', '/properties', '/plots', '/soil-analysis', '/crop-cycles', '/products', '/stock', '/applications', '/equipment'];
     const isProtectedRoute = protectedRoutes.includes(path) || path === '/';
     
     if (isProtectedRoute) {
