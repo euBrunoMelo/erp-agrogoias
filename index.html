@@ -26,20 +26,42 @@
         </div>
     </nav>
 
-    <!-- Menu Lateral (Hamburger) -->
+    <!-- Menu Lateral (Hamburger) - Estilo GitHub -->
     <div class="sidebar-menu" id="sidebarMenu">
         <div class="sidebar-header">
             <h2>Menu</h2>
             <button class="sidebar-close" onclick="toggleMenu()" aria-label="Fechar menu">&times;</button>
         </div>
         <ul class="sidebar-menu-list">
-            <li id="sidebarDashboard"><a href="/" onclick="event.preventDefault(); closeMenu(); navigate('/dashboard')">📊 Dashboard</a></li>
-            <li id="sidebarProperties"><a href="/properties" onclick="event.preventDefault(); closeMenu(); navigate('/properties')">🏞️ Propriedades</a></li>
-            <li id="sidebarPlots"><a href="/plots" onclick="event.preventDefault(); closeMenu(); navigate('/plots')">📐 Talhões</a></li>
-            <li id="sidebarSoilAnalysis"><a href="/soil-analysis" onclick="event.preventDefault(); closeMenu(); navigate('/soil-analysis')">🔬 Análises de Solo</a></li>
-            <li id="sidebarCropCycles"><a href="/crop-cycles" onclick="event.preventDefault(); closeMenu(); navigate('/crop-cycles')">🌾 Ciclos de Cultivo</a></li>
-            <li id="sidebarLogin" style="display: none;"><a href="/login" onclick="event.preventDefault(); closeMenu(); navigate('/login')">🔐 Login</a></li>
-            <li id="sidebarLogout" style="display: none;"><a href="#" onclick="event.preventDefault(); closeMenu(); handleLogout()">🚪 Sair</a></li>
+            <li id="sidebarDashboard"><a href="/" onclick="event.preventDefault(); closeMenu(); navigate('/dashboard')">
+                <span style="font-size: 1.1rem;">📊</span>
+                <span>Dashboard</span>
+            </a></li>
+            <li id="sidebarProperties"><a href="/properties" onclick="event.preventDefault(); closeMenu(); navigate('/properties')">
+                <span style="font-size: 1.1rem;">🏞️</span>
+                <span>Propriedades</span>
+            </a></li>
+            <li id="sidebarPlots"><a href="/plots" onclick="event.preventDefault(); closeMenu(); navigate('/plots')">
+                <span style="font-size: 1.1rem;">📐</span>
+                <span>Talhões</span>
+            </a></li>
+            <li id="sidebarSoilAnalysis"><a href="/soil-analysis" onclick="event.preventDefault(); closeMenu(); navigate('/soil-analysis')">
+                <span style="font-size: 1.1rem;">🔬</span>
+                <span>Análises de Solo</span>
+            </a></li>
+            <li id="sidebarCropCycles"><a href="/crop-cycles" onclick="event.preventDefault(); closeMenu(); navigate('/crop-cycles')">
+                <span style="font-size: 1.1rem;">🌾</span>
+                <span>Ciclos de Cultivo</span>
+            </a></li>
+            <li class="sidebar-separator"></li>
+            <li id="sidebarLogin" style="display: none;"><a href="/login" onclick="event.preventDefault(); closeMenu(); navigate('/login')">
+                <span style="font-size: 1.1rem;">🔐</span>
+                <span>Login</span>
+            </a></li>
+            <li id="sidebarLogout" style="display: none;"><a href="#" onclick="event.preventDefault(); closeMenu(); handleLogout()">
+                <span style="font-size: 1.1rem;">🚪</span>
+                <span>Sair</span>
+            </a></li>
         </ul>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMenu()"></div>
