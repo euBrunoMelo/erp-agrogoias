@@ -1,0 +1,227 @@
+<div class="page-container">
+    <div class="page-header">
+        <h1>Talhões</h1>
+        <button onclick="showPlotForm()" class="btn-primary">+ Novo Talhão</button>
+    </div>
+
+    <div class="filters">
+        <label for="propertyFilter">Filtrar por propriedade:</label>
+        <select id="propertyFilter" onchange="loadPlots()">
+            <option value="">Todas as propriedades</option>
+        </select>
+    </div>
+
+    <div id="plotsList" class="plots-list">
+        <p>Carregando...</p>
+    </div>
+
+    <!-- Modal de Formulário -->
+    <div id="plotModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="plotModalTitle">Novo Talhão</h2>
+                <button onclick="closePlotForm()" class="close-btn">&times;</button>
+            </div>
+            <form id="plotForm" onsubmit="savePlot(event)">
+                <input type="hidden" id="plotId">
+                
+                <div class="form-group">
+                    <label for="plotProperty">Propriedade *</label>
+                    <select id="plotProperty" required>
+                        <option value="">Selecione uma propriedade</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="plotName">Nome *</label>
+                    <input type="text" id="plotName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="plotArea">Área (hectares) *</label>
+                    <input type="number" id="plotArea" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="plotSoilType">Tipo de Solo</label>
+                    <select id="plotSoilType">
+                        <option value="">Selecione...</option>
+                        <option value="Arenoso">Arenoso</option>
+                        <option value="Argiloso">Argiloso</option>
+                        <option value="Latossolo">Latossolo</option>
+                        <option value="Neossolo">Neossolo</option>
+                        <option value="Nitossolo">Nitossolo</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="plotDescription">Descrição</label>
+                    <textarea id="plotDescription" rows="3"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="closePlotForm()" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let editingPlotId = null;
+
+async function loadPropertiesForSelect() {
+    try {
+        const properties = await getProperties();
+        const select = document.getElementById('plotProperty');
+        const filterSelect = document.getElementById('propertyFilter');
+        
+        select.innerHTML = '<option value="">Selecione uma propriedade</option>';
+        filterSelect.innerHTML = '<option value="">Todas as propriedades</option>';
+        
+        properties.forEach(property => {
+            const option = `<option value="${property.id}">${property.name}</option>`;
+            select.innerHTML += option;
+            filterSelect.innerHTML += option;
+        });
+    } catch (error) {
+        console.error('Erro ao carregar propriedades:', error);
+    }
+}
+
+async function loadPlots() {
+    const list = document.getElementById('plotsList');
+    const propertyId = document.getElementById('propertyFilter')?.value || null;
+    
+    list.innerHTML = '<p>Carregando...</p>';
+    
+    try {
+        const plots = await getPlots(propertyId);
+        
+        if (plots.length === 0) {
+            list.innerHTML = '<p class="empty-state">Nenhum talhão cadastrado. Clique em "Novo Talhão" para começar.</p>';
+            return;
+        }
+        
+        list.innerHTML = plots.map(plot => `
+            <div class="plot-card">
+                <div class="plot-info">
+                    <h3>${plot.name}</h3>
+                    <p><strong>Propriedade:</strong> ${plot.properties?.name || 'N/A'}</p>
+                    <p><strong>Área:</strong> ${plot.area} ha</p>
+                    ${plot.soil_type ? `<p><strong>Tipo de Solo:</strong> ${plot.soil_type}</p>` : ''}
+                </div>
+                <div class="plot-actions">
+                    <button onclick="editPlot('${plot.id}')" class="btn-edit">Editar</button>
+                    <button onclick="deletePlotConfirm('${plot.id}')" class="btn-delete">Excluir</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        list.innerHTML = '<p class="error">Erro ao carregar talhões</p>';
+    }
+}
+
+function showPlotForm(plotId = null) {
+    editingPlotId = plotId;
+    const modal = document.getElementById('plotModal');
+    const form = document.getElementById('plotForm');
+    const title = document.getElementById('plotModalTitle');
+    
+    if (plotId) {
+        title.textContent = 'Editar Talhão';
+        loadPlotForEdit(plotId);
+    } else {
+        title.textContent = 'Novo Talhão';
+        form.reset();
+        document.getElementById('plotId').value = '';
+    }
+    
+    modal.classList.add('show');
+}
+
+function closePlotForm() {
+    document.getElementById('plotModal').classList.remove('show');
+    editingPlotId = null;
+}
+
+async function loadPlotForEdit(id) {
+    try {
+        const plot = await getPlotById(id);
+        if (plot) {
+            document.getElementById('plotId').value = plot.id;
+            document.getElementById('plotProperty').value = plot.property_id;
+            document.getElementById('plotName').value = plot.name || '';
+            document.getElementById('plotArea').value = plot.area || '';
+            document.getElementById('plotSoilType').value = plot.soil_type || '';
+            document.getElementById('plotDescription').value = plot.description || '';
+        }
+    } catch (error) {
+        console.error('Erro ao carregar talhão:', error);
+    }
+}
+
+async function savePlot(event) {
+    event.preventDefault();
+    
+    const id = document.getElementById('plotId').value;
+    const plot = {
+        property_id: document.getElementById('plotProperty').value,
+        name: document.getElementById('plotName').value,
+        area: parseFloat(document.getElementById('plotArea').value),
+        soil_type: document.getElementById('plotSoilType').value || null,
+        description: document.getElementById('plotDescription').value || null
+    };
+    
+    try {
+        if (id) {
+            await updatePlot(id, plot);
+        } else {
+            await createPlot(plot);
+        }
+        closePlotForm();
+        loadPlots();
+    } catch (error) {
+        console.error('Erro ao salvar talhão:', error);
+    }
+}
+
+async function editPlot(id) {
+    showPlotForm(id);
+}
+
+async function deletePlotConfirm(id) {
+    if (confirm('Tem certeza que deseja excluir este talhão? Esta ação não pode ser desfeita.')) {
+        try {
+            await deletePlot(id);
+            loadPlots();
+        } catch (error) {
+            console.error('Erro ao excluir talhão:', error);
+        }
+    }
+}
+
+// Aguardar Supabase carregar antes de executar
+async function initPlotsPage() {
+    while (!window.supabaseClient) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    supabase = window.supabaseClient;
+    await loadPropertiesForSelect();
+    loadPlots();
+}
+
+// Carregar dados ao carregar a página
+window.addEventListener('pageLoaded', () => {
+    if (window.location.pathname === '/plots') {
+        setTimeout(initPlotsPage, 100);
+    }
+});
+
+// Carregar na primeira vez
+if (window.location.pathname === '/plots' || document.getElementById('plotsList')) {
+    setTimeout(initPlotsPage, 500);
+}
+</script>
+

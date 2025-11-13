@@ -1,0 +1,197 @@
+<div class="page-container">
+    <div class="page-header">
+        <h1>Propriedades</h1>
+        <button onclick="showPropertyForm()" class="btn-primary">+ Nova Propriedade</button>
+    </div>
+
+    <div id="propertiesList" class="properties-list">
+        <p>Carregando...</p>
+    </div>
+
+    <!-- Modal de Formulário -->
+    <div id="propertyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nova Propriedade</h2>
+                <button onclick="closePropertyForm()" class="close-btn">&times;</button>
+            </div>
+            <form id="propertyForm" onsubmit="saveProperty(event)">
+                <input type="hidden" id="propertyId">
+                
+                <div class="form-group">
+                    <label for="propertyName">Nome *</label>
+                    <input type="text" id="propertyName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="propertyLocation">Localização</label>
+                    <input type="text" id="propertyLocation">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="propertyCity">Cidade</label>
+                        <input type="text" id="propertyCity">
+                    </div>
+                    <div class="form-group">
+                        <label for="propertyState">Estado</label>
+                        <input type="text" id="propertyState" value="GO" maxlength="2">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="propertyArea">Área Total (hectares)</label>
+                    <input type="number" id="propertyArea" step="0.01" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="propertyDescription">Descrição</label>
+                    <textarea id="propertyDescription" rows="3"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="closePropertyForm()" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let editingPropertyId = null;
+
+async function loadProperties() {
+    const list = document.getElementById('propertiesList');
+    list.innerHTML = '<p>Carregando...</p>';
+    
+    try {
+        const properties = await getProperties();
+        
+        if (properties.length === 0) {
+            list.innerHTML = '<p class="empty-state">Nenhuma propriedade cadastrada. Clique em "Nova Propriedade" para começar.</p>';
+            return;
+        }
+        
+        list.innerHTML = properties.map(property => `
+            <div class="property-card">
+                <div class="property-info">
+                    <h3>${property.name}</h3>
+                    <p>${property.location || 'Sem localização'}</p>
+                    <p>${property.city || ''} - ${property.state || 'GO'}</p>
+                    ${property.total_area ? `<p><strong>Área:</strong> ${property.total_area} ha</p>` : ''}
+                </div>
+                <div class="property-actions">
+                    <button onclick="editProperty('${property.id}')" class="btn-edit">Editar</button>
+                    <button onclick="deletePropertyConfirm('${property.id}')" class="btn-delete">Excluir</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        list.innerHTML = '<p class="error">Erro ao carregar propriedades</p>';
+    }
+}
+
+function showPropertyForm(propertyId = null) {
+    editingPropertyId = propertyId;
+    const modal = document.getElementById('propertyModal');
+    const form = document.getElementById('propertyForm');
+    const title = document.getElementById('modalTitle');
+    
+    if (propertyId) {
+        title.textContent = 'Editar Propriedade';
+        loadPropertyForEdit(propertyId);
+    } else {
+        title.textContent = 'Nova Propriedade';
+        form.reset();
+        document.getElementById('propertyId').value = '';
+    }
+    
+    modal.classList.add('show');
+}
+
+function closePropertyForm() {
+    document.getElementById('propertyModal').classList.remove('show');
+    editingPropertyId = null;
+}
+
+async function loadPropertyForEdit(id) {
+    try {
+        const property = await getPropertyById(id);
+        if (property) {
+            document.getElementById('propertyId').value = property.id;
+            document.getElementById('propertyName').value = property.name || '';
+            document.getElementById('propertyLocation').value = property.location || '';
+            document.getElementById('propertyCity').value = property.city || '';
+            document.getElementById('propertyState').value = property.state || 'GO';
+            document.getElementById('propertyArea').value = property.total_area || '';
+            document.getElementById('propertyDescription').value = property.description || '';
+        }
+    } catch (error) {
+        console.error('Erro ao carregar propriedade:', error);
+    }
+}
+
+async function saveProperty(event) {
+    event.preventDefault();
+    
+    const id = document.getElementById('propertyId').value;
+    const property = {
+        name: document.getElementById('propertyName').value,
+        location: document.getElementById('propertyLocation').value,
+        city: document.getElementById('propertyCity').value,
+        state: document.getElementById('propertyState').value,
+        total_area: parseFloat(document.getElementById('propertyArea').value) || null,
+        description: document.getElementById('propertyDescription').value
+    };
+    
+    try {
+        if (id) {
+            await updateProperty(id, property);
+        } else {
+            await createProperty(property);
+        }
+        closePropertyForm();
+        loadProperties();
+    } catch (error) {
+        console.error('Erro ao salvar propriedade:', error);
+    }
+}
+
+async function editProperty(id) {
+    showPropertyForm(id);
+}
+
+async function deletePropertyConfirm(id) {
+    if (confirm('Tem certeza que deseja excluir esta propriedade? Esta ação não pode ser desfeita.')) {
+        try {
+            await deleteProperty(id);
+            loadProperties();
+        } catch (error) {
+            console.error('Erro ao excluir propriedade:', error);
+        }
+    }
+}
+
+// Aguardar Supabase carregar antes de executar
+async function initPropertiesPage() {
+    while (!window.supabaseClient) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    supabase = window.supabaseClient;
+    loadProperties();
+}
+
+// Carregar propriedades ao carregar a página
+window.addEventListener('pageLoaded', () => {
+    if (window.location.pathname === '/properties') {
+        setTimeout(initPropertiesPage, 100);
+    }
+});
+
+// Carregar na primeira vez
+if (window.location.pathname === '/properties' || document.getElementById('propertiesList')) {
+    setTimeout(initPropertiesPage, 500);
+}
+</script>
+

@@ -8,19 +8,43 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="content">
-            <h1 class="title">Olá Mundo</h1>
-            <p class="subtitle">Bem-vindo ao ERP AgroGoiás</p>
-            <div class="status" id="status">
-                <span class="status-dot"></span>
-                <span>Sistema Online</span>
-            </div>
-            <div class="db-status" id="dbStatus">
-                <span class="db-status-text">Testando conexão com Supabase...</span>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-logo">ERP AgroGoiás</h1>
+            <ul class="nav-menu">
+                <li><a href="/" onclick="event.preventDefault(); navigate('/dashboard')">Dashboard</a></li>
+                <li><a href="/properties" onclick="event.preventDefault(); navigate('/properties')">Propriedades</a></li>
+                <li><a href="/plots" onclick="event.preventDefault(); navigate('/plots')">Talhões</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div id="app">
+            <div class="container">
+                <div class="content">
+                    <h1 class="title">Olá Mundo</h1>
+                    <p class="subtitle">Bem-vindo ao ERP AgroGoiás</p>
+                    <div class="status" id="status">
+                        <span class="status-dot"></span>
+                        <span>Sistema Online</span>
+                    </div>
+                    <div class="db-status" id="dbStatus">
+                        <span class="db-status-text">Testando conexão com Supabase...</span>
+                    </div>
+                    <div style="margin-top: 30px;">
+                        <button onclick="navigate('/dashboard')" class="btn-primary">Acessar Dashboard</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/properties.js"></script>
+    <script src="js/plots.js"></script>
+    <script src="js/router.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
