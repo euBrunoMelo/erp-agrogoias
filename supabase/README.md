@@ -1,8 +1,25 @@
 # Migrations Supabase - ERP AgroGoiás
 
+## 📚 Documentação Completa
+
+Para um guia detalhado de configuração, consulte:
+- **[SETUP_DATABASE.md](./SETUP_DATABASE.md)** - Guia completo passo a passo
+- **[verify_database.sql](./verify_database.sql)** - Script de verificação
+
 ## Como executar as migrations
 
-### Opção 1: Via Supabase Dashboard (Recomendado)
+### Opção 1: Executar tudo de uma vez (Recomendado) ⚡
+
+1. Acesse o [Supabase Dashboard](https://supabase.com/dashboard)
+2. Selecione seu projeto
+3. Vá em **SQL Editor**
+4. Abra o arquivo `all_migrations.sql`
+5. Copie TODO o conteúdo
+6. Cole no SQL Editor
+7. Clique em **Run** (Ctrl+Enter)
+8. ✅ Pronto! Todas as tabelas foram criadas
+
+### Opção 2: Executar migrations individuais
 
 1. Acesse o [Supabase Dashboard](https://supabase.com/dashboard)
 2. Selecione seu projeto
@@ -15,7 +32,7 @@
    - `004_crops.sql`
    - `005_crop_cycles.sql`
 
-### Opção 2: Via Supabase CLI
+### Opção 3: Via Supabase CLI
 
 ```bash
 # Instalar Supabase CLI
@@ -71,13 +88,24 @@ supabase db push
 
 ## Verificação
 
+### Verificação Rápida
+
+Execute o script `verify_database.sql` no SQL Editor para verificar:
+- ✅ Todas as tabelas foram criadas
+- ✅ RLS está habilitado
+- ✅ Policies estão ativas
+- ✅ Índices foram criados
+- ✅ Triggers estão funcionando
+- ✅ Dados iniciais (crops) foram inseridos
+- ✅ Foreign keys estão configuradas
+
+### Verificação Manual
+
 Após executar as migrations, verifique:
 
-1. Todas as tabelas foram criadas
-2. RLS está habilitado
-3. Policies estão ativas
-4. Índices foram criados
-5. Dados iniciais (crops) foram inseridos
+1. **Table Editor**: Todas as 6 tabelas devem aparecer
+2. **Authentication → Policies**: Cada tabela deve ter políticas
+3. **Table Editor → crops**: Deve ter 5 culturas pré-cadastradas
 
 ## Próximos passos
 

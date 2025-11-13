@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS properties (
 CREATE INDEX IF NOT EXISTS idx_properties_owner_id ON properties(owner_id);
 CREATE INDEX IF NOT EXISTS idx_properties_created_at ON properties(created_at DESC);
 
+DROP TRIGGER IF EXISTS update_properties_updated_at ON properties;
 CREATE TRIGGER update_properties_updated_at 
     BEFORE UPDATE ON properties
     FOR EACH ROW
@@ -37,15 +38,19 @@ CREATE TRIGGER update_properties_updated_at
 
 ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own properties" ON properties;
 CREATE POLICY "Users can view own properties" ON properties
     FOR SELECT USING (auth.uid() = owner_id);
 
+DROP POLICY IF EXISTS "Users can insert own properties" ON properties;
 CREATE POLICY "Users can insert own properties" ON properties
     FOR INSERT WITH CHECK (auth.uid() = owner_id);
 
+DROP POLICY IF EXISTS "Users can update own properties" ON properties;
 CREATE POLICY "Users can update own properties" ON properties
     FOR UPDATE USING (auth.uid() = owner_id);
 
+DROP POLICY IF EXISTS "Users can delete own properties" ON properties;
 CREATE POLICY "Users can delete own properties" ON properties
     FOR DELETE USING (auth.uid() = owner_id);
 
@@ -65,6 +70,7 @@ CREATE TABLE IF NOT EXISTS plots (
 CREATE INDEX IF NOT EXISTS idx_plots_property_id ON plots(property_id);
 CREATE INDEX IF NOT EXISTS idx_plots_created_at ON plots(created_at DESC);
 
+DROP TRIGGER IF EXISTS update_plots_updated_at ON plots;
 CREATE TRIGGER update_plots_updated_at 
     BEFORE UPDATE ON plots
     FOR EACH ROW
@@ -72,6 +78,7 @@ CREATE TRIGGER update_plots_updated_at
 
 ALTER TABLE plots ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view plots of own properties" ON plots;
 CREATE POLICY "Users can view plots of own properties" ON plots
     FOR SELECT USING (
         EXISTS (
@@ -81,6 +88,7 @@ CREATE POLICY "Users can view plots of own properties" ON plots
         )
     );
 
+DROP POLICY IF EXISTS "Users can insert plots in own properties" ON plots;
 CREATE POLICY "Users can insert plots in own properties" ON plots
     FOR INSERT WITH CHECK (
         EXISTS (
@@ -90,6 +98,7 @@ CREATE POLICY "Users can insert plots in own properties" ON plots
         )
     );
 
+DROP POLICY IF EXISTS "Users can update plots of own properties" ON plots;
 CREATE POLICY "Users can update plots of own properties" ON plots
     FOR UPDATE USING (
         EXISTS (
@@ -99,6 +108,7 @@ CREATE POLICY "Users can update plots of own properties" ON plots
         )
     );
 
+DROP POLICY IF EXISTS "Users can delete plots of own properties" ON plots;
 CREATE POLICY "Users can delete plots of own properties" ON plots
     FOR DELETE USING (
         EXISTS (
@@ -132,6 +142,7 @@ CREATE INDEX IF NOT EXISTS idx_soil_analysis_date ON soil_analysis(analysis_date
 
 ALTER TABLE soil_analysis ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view soil analysis of own plots" ON soil_analysis;
 CREATE POLICY "Users can view soil analysis of own plots" ON soil_analysis
     FOR SELECT USING (
         EXISTS (
@@ -142,6 +153,7 @@ CREATE POLICY "Users can view soil analysis of own plots" ON soil_analysis
         )
     );
 
+DROP POLICY IF EXISTS "Users can insert soil analysis for own plots" ON soil_analysis;
 CREATE POLICY "Users can insert soil analysis for own plots" ON soil_analysis
     FOR INSERT WITH CHECK (
         EXISTS (
@@ -152,6 +164,7 @@ CREATE POLICY "Users can insert soil analysis for own plots" ON soil_analysis
         )
     );
 
+DROP POLICY IF EXISTS "Users can update soil analysis of own plots" ON soil_analysis;
 CREATE POLICY "Users can update soil analysis of own plots" ON soil_analysis
     FOR UPDATE USING (
         EXISTS (
@@ -162,6 +175,7 @@ CREATE POLICY "Users can update soil analysis of own plots" ON soil_analysis
         )
     );
 
+DROP POLICY IF EXISTS "Users can delete soil analysis of own plots" ON soil_analysis;
 CREATE POLICY "Users can delete soil analysis of own plots" ON soil_analysis
     FOR DELETE USING (
         EXISTS (
@@ -200,15 +214,19 @@ CREATE INDEX IF NOT EXISTS idx_culture_varieties_crop_id ON culture_varieties(cr
 ALTER TABLE crops ENABLE ROW LEVEL SECURITY;
 ALTER TABLE culture_varieties ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can view crops" ON crops;
 CREATE POLICY "Anyone can view crops" ON crops
     FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Authenticated users can insert crops" ON crops;
 CREATE POLICY "Authenticated users can insert crops" ON crops
     FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Anyone can view culture varieties" ON culture_varieties;
 CREATE POLICY "Anyone can view culture varieties" ON culture_varieties
     FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Authenticated users can insert culture varieties" ON culture_varieties;
 CREATE POLICY "Authenticated users can insert culture varieties" ON culture_varieties
     FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
@@ -239,6 +257,7 @@ CREATE INDEX IF NOT EXISTS idx_crop_cycles_crop_id ON crop_cycles(crop_id);
 CREATE INDEX IF NOT EXISTS idx_crop_cycles_status ON crop_cycles(status);
 CREATE INDEX IF NOT EXISTS idx_crop_cycles_planting_date ON crop_cycles(planting_date DESC);
 
+DROP TRIGGER IF EXISTS update_crop_cycles_updated_at ON crop_cycles;
 CREATE TRIGGER update_crop_cycles_updated_at 
     BEFORE UPDATE ON crop_cycles
     FOR EACH ROW
@@ -246,6 +265,7 @@ CREATE TRIGGER update_crop_cycles_updated_at
 
 ALTER TABLE crop_cycles ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view crop cycles of own plots" ON crop_cycles;
 CREATE POLICY "Users can view crop cycles of own plots" ON crop_cycles
     FOR SELECT USING (
         EXISTS (
@@ -256,6 +276,7 @@ CREATE POLICY "Users can view crop cycles of own plots" ON crop_cycles
         )
     );
 
+DROP POLICY IF EXISTS "Users can insert crop cycles for own plots" ON crop_cycles;
 CREATE POLICY "Users can insert crop cycles for own plots" ON crop_cycles
     FOR INSERT WITH CHECK (
         EXISTS (
@@ -266,6 +287,7 @@ CREATE POLICY "Users can insert crop cycles for own plots" ON crop_cycles
         )
     );
 
+DROP POLICY IF EXISTS "Users can update crop cycles of own plots" ON crop_cycles;
 CREATE POLICY "Users can update crop cycles of own plots" ON crop_cycles
     FOR UPDATE USING (
         EXISTS (
@@ -276,6 +298,7 @@ CREATE POLICY "Users can update crop cycles of own plots" ON crop_cycles
         )
     );
 
+DROP POLICY IF EXISTS "Users can delete crop cycles of own plots" ON crop_cycles;
 CREATE POLICY "Users can delete crop cycles of own plots" ON crop_cycles
     FOR DELETE USING (
         EXISTS (
