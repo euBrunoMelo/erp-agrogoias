@@ -2,7 +2,7 @@
 
 // Obter cliente Supabase
 function getSupabaseClient() {
-    return window.supabaseClient || supabase;
+    return window.supabaseClient;
 }
 
 async function getCropCycles(plotId = null) {

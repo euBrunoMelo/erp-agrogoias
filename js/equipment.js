@@ -2,7 +2,7 @@
 
 // Obter cliente Supabase
 function getSupabaseClient() {
-    return window.supabaseClient || supabase;
+    return window.supabaseClient;
 }
 
 async function getEquipment(propertyId = null) {
@@ -133,19 +133,8 @@ async function deleteEquipment(id) {
     }
 }
 
-// Função auxiliar para mostrar notificação
-// Armazenar referência à função global antes de definir a local
-const _globalShowNotification = window.showNotification;
-
-function showNotification(message, type = 'info') {
-    // Usar a referência global armazenada (se existir e for diferente)
-    if (typeof _globalShowNotification === 'function' && _globalShowNotification !== showNotification) {
-        _globalShowNotification(message, type);
-    } else {
-        // Fallback: apenas log no console
-        console.log(`[${type.toUpperCase()}] ${message}`);
-    }
-}
+// Função showNotification é fornecida por js/ui.js
+// Usar window.showNotification diretamente
 
 // Exportar funções globalmente
 window.getEquipment = getEquipment;
