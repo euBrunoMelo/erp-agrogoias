@@ -8,42 +8,42 @@
                 <div class="dashboard-card">
                     <h3>Propriedades</h3>
                     <p id="propertiesCount">Carregando...</p>
-                    <button onclick="navigate('/properties')" class="btn-primary">Gerenciar</button>
+                    <button onclick="if (typeof window.navigate === 'function') window.navigate('/properties'); else window.location.href = '/properties';" class="btn-primary">Gerenciar</button>
                 </div>
                 <div class="dashboard-card">
                     <h3>Talhões</h3>
                     <p id="plotsCount">Carregando...</p>
-                    <button onclick="navigate('/plots')" class="btn-primary">Gerenciar</button>
+                    <button onclick="if (typeof window.navigate === 'function') window.navigate('/plots'); else window.location.href = '/plots';" class="btn-primary">Gerenciar</button>
                 </div>
                 <div class="dashboard-card">
                     <h3>Análises de Solo</h3>
                     <p id="soilAnalysesCount">Carregando...</p>
-                    <button onclick="navigate('/soil-analysis')" class="btn-primary">Gerenciar</button>
+                    <button onclick="if (typeof window.navigate === 'function') window.navigate('/soil-analysis'); else window.location.href = '/soil-analysis';" class="btn-primary">Gerenciar</button>
                 </div>
                 <div class="dashboard-card">
                     <h3>Ciclos de Cultivo</h3>
                     <p id="cropCyclesCount">Carregando...</p>
-                    <button onclick="navigate('/crop-cycles')" class="btn-primary">Gerenciar</button>
+                    <button onclick="if (typeof window.navigate === 'function') window.navigate('/crop-cycles'); else window.location.href = '/crop-cycles';" class="btn-primary">Gerenciar</button>
                 </div>
                 <div class="dashboard-card">
                     <h3>Produtos</h3>
                     <p id="productsCount">Carregando...</p>
-                    <button onclick="navigate('/products')" class="btn-primary">Gerenciar</button>
+                    <button onclick="if (typeof window.navigate === 'function') window.navigate('/products'); else window.location.href = '/products';" class="btn-primary">Gerenciar</button>
                 </div>
                 <div class="dashboard-card">
                     <h3>Estoque</h3>
                     <p id="stockCount">Carregando...</p>
-                    <button onclick="navigate('/stock')" class="btn-primary">Gerenciar</button>
+                    <button onclick="if (typeof window.navigate === 'function') window.navigate('/stock'); else window.location.href = '/stock';" class="btn-primary">Gerenciar</button>
                 </div>
                 <div class="dashboard-card">
                     <h3>Aplicações</h3>
                     <p id="applicationsCount">Carregando...</p>
-                    <button onclick="navigate('/applications')" class="btn-primary">Gerenciar</button>
+                    <button onclick="if (typeof window.navigate === 'function') window.navigate('/applications'); else window.location.href = '/applications';" class="btn-primary">Gerenciar</button>
                 </div>
                 <div class="dashboard-card">
                     <h3>Equipamentos</h3>
                     <p id="equipmentCount">Carregando...</p>
-                    <button onclick="navigate('/equipment')" class="btn-primary">Gerenciar</button>
+                    <button onclick="if (typeof window.navigate === 'function') window.navigate('/equipment'); else window.location.href = '/equipment';" class="btn-primary">Gerenciar</button>
                 </div>
             </div>
         </div>
@@ -132,7 +132,11 @@ async function loadDashboard() {
         console.error('Erro ao carregar dashboard:', error);
         // Se erro de autenticação, redirecionar para login
         if (error.message && error.message.includes('JWT')) {
-            navigate('/login');
+            if (typeof window.navigate === 'function') {
+                window.navigate('/login');
+            } else {
+                window.location.href = '/login';
+            }
         }
     }
 }

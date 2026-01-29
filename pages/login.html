@@ -35,7 +35,7 @@
             </div>
 
             <div class="auth-footer">
-                <p>Não tem uma conta? <a href="#" onclick="event.preventDefault(); navigate('/register')">Cadastre-se</a></p>
+                <p>Não tem uma conta? <a href="#" onclick="event.preventDefault(); if (typeof window.navigate === 'function') window.navigate('/register'); else window.location.href = '/register';">Cadastre-se</a></p>
             </div>
         </form>
 
@@ -61,12 +61,18 @@ async function handleLogin(event) {
     submitButton.textContent = 'Entrando...';
 
     try {
-        // Aguardar Supabase carregar
-        while (!window.supabaseClient) {
+        // Aguardar função signIn estar disponível (exportada via globals.js)
+        let retries = 0;
+        while (typeof window.signIn !== 'function' && retries < 50) {
             await new Promise(resolve => setTimeout(resolve, 100));
+            retries++;
         }
 
-        const { data, error } = await signIn(email, password);
+        if (typeof window.signIn !== 'function') {
+            throw new Error('Sistema não está pronto. Recarregue a página.');
+        }
+
+        const { data, error } = await window.signIn(email, password);
 
         if (error) {
             errorDiv.textContent = error.message;
@@ -75,7 +81,11 @@ async function handleLogin(event) {
             submitButton.textContent = 'Entrar';
         } else {
             // Redirecionar será feito pelo auth listener
-            navigate('/dashboard');
+            if (typeof window.navigate === 'function') {
+                window.navigate('/dashboard');
+            } else {
+                window.location.href = '/dashboard';
+            }
         }
     } catch (error) {
         console.error('Erro ao fazer login:', error);
@@ -95,15 +105,15 @@ async function checkAuth() {
     authCheckDone = true;
     
     try {
-        // Aguardar funções de auth estarem disponíveis
+        // Aguardar função isAuthenticated estar disponível
         let retries = 0;
-        while (typeof isAuthenticated !== 'function' && retries < 20) {
+        while (typeof window.isAuthenticated !== 'function' && retries < 20) {
             await new Promise(resolve => setTimeout(resolve, 100));
             retries++;
         }
         
-        if (typeof isAuthenticated === 'function') {
-            const authenticated = await isAuthenticated();
+        if (typeof window.isAuthenticated === 'function') {
+            const authenticated = await window.isAuthenticated();
             if (authenticated) {
                 // Usar window.location para evitar loop no router
                 window.location.href = '/dashboard';

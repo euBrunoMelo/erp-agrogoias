@@ -61,7 +61,7 @@
             </div>
 
             <div class="auth-footer">
-                <p>Já tem uma conta? <a href="#" onclick="event.preventDefault(); navigate('/login')">Faça login</a></p>
+                <p>Já tem uma conta? <a href="#" onclick="event.preventDefault(); if (typeof window.navigate === 'function') window.navigate('/login'); else window.location.href = '/login';">Faça login</a></p>
             </div>
         </form>
 
@@ -106,14 +106,14 @@ async function handleRegister(event) {
     submitButton.textContent = 'Criando conta...';
 
     try {
-        // Aguardar Supabase e funções de auth carregarem
+        // Aguardar função signUp estar disponível (exportada via globals.js)
         let retries = 0;
-        while ((!window.supabaseClient || typeof signUp !== 'function') && retries < 50) {
+        while (typeof window.signUp !== 'function' && retries < 50) {
             await new Promise(resolve => setTimeout(resolve, 100));
             retries++;
         }
 
-        if (!window.supabaseClient || typeof signUp !== 'function') {
+        if (typeof window.signUp !== 'function') {
             throw new Error('Sistema não está pronto. Recarregue a página.');
         }
 
@@ -122,30 +122,33 @@ async function handleRegister(event) {
             role: 'PRODUCER' // Role padrão
         };
 
-        const { data, error } = await signUp(email, password, userData);
+        console.log('📝 Tentando criar conta para:', email);
+        const { data, error } = await window.signUp(email, password, userData);
 
         if (error) {
-            errorDiv.textContent = error.message;
+            console.error('❌ Erro ao criar conta:', error);
+            errorDiv.textContent = error.message || 'Erro ao criar conta';
             errorDiv.style.display = 'block';
             submitButton.disabled = false;
             submitButton.textContent = 'Criar Conta';
         } else {
-            successDiv.textContent = 'Conta criada com sucesso! Verifique seu email para confirmar.';
+            console.log('✅ Conta criada com sucesso!', data);
+            successDiv.textContent = 'Conta criada com sucesso! ' + (data?.user?.email_confirmed_at ? 'Você já pode fazer login.' : 'Verifique seu email para confirmar sua conta.');
             successDiv.style.display = 'block';
             // Limpar formulário
             event.target.reset();
             // Redirecionar para login após 3 segundos
             setTimeout(() => {
-                if (typeof navigate === 'function') {
-                    navigate('/login');
+                if (typeof window.navigate === 'function') {
+                    window.navigate('/login');
                 } else {
                     window.location.href = '/login';
                 }
             }, 3000);
         }
     } catch (error) {
-        console.error('Erro ao criar conta:', error);
-        errorDiv.textContent = error.message || 'Erro ao criar conta';
+        console.error('❌ Erro inesperado ao criar conta:', error);
+        errorDiv.textContent = error.message || 'Erro ao criar conta. Tente novamente.';
         errorDiv.style.display = 'block';
         submitButton.disabled = false;
         submitButton.textContent = 'Criar Conta';
@@ -161,15 +164,15 @@ async function checkAuth() {
     authCheckDone = true;
     
     try {
-        // Aguardar funções de auth estarem disponíveis
+        // Aguardar função isAuthenticated estar disponível
         let retries = 0;
-        while (typeof isAuthenticated !== 'function' && retries < 20) {
+        while (typeof window.isAuthenticated !== 'function' && retries < 20) {
             await new Promise(resolve => setTimeout(resolve, 100));
             retries++;
         }
         
-        if (typeof isAuthenticated === 'function') {
-            const authenticated = await isAuthenticated();
+        if (typeof window.isAuthenticated === 'function') {
+            const authenticated = await window.isAuthenticated();
             if (authenticated) {
                 // Usar window.location para evitar loop no router
                 window.location.href = '/dashboard';

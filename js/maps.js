@@ -1,9 +1,12 @@
 // Módulo de Mapas - Leaflet.js
 // Funções para gerenciar mapas, marcadores e polígonos
 import L from 'leaflet';
-import 'leaflet-draw';
-import 'leaflet-control-geocoder';
-import 'leaflet-measure';
+import 'leaflet-draw/dist/leaflet.draw.js';
+import * as Geocoder from 'leaflet-control-geocoder';
+import 'leaflet-measure/dist/leaflet-measure.js';
+
+// Adicionar Geocoder ao namespace L
+L.Control.Geocoder = Geocoder;
 
 // Coordenadas padrão: Goiânia-GO
 const DEFAULT_CENTER = [-16.6864, -49.2556];
