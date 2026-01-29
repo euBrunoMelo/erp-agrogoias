@@ -233,10 +233,6 @@ async function initPropertiesPage() {
         return;
     }
 
-    while (!window.supabaseClient) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    supabase = window.supabaseClient;
     loadProperties();
 }
 

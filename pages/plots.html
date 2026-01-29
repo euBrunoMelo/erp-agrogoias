@@ -270,10 +270,6 @@ async function initPlotsPage() {
         return;
     }
 
-    while (!window.supabaseClient) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    supabase = window.supabaseClient;
     await loadPropertiesForSelect();
     loadPlots();
 }

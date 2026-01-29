@@ -398,11 +398,6 @@ async function initCropCyclesPage() {
         return;
     }
 
-    while (!window.supabaseClient) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    supabase = window.supabaseClient;
-    
     await loadPlots();
     await loadCrops();
     loadCropCycles();

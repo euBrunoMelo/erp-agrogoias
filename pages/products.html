@@ -237,10 +237,6 @@ async function initProductsPage() {
         return;
     }
 
-    while (!window.supabaseClient) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    supabase = window.supabaseClient;
     loadProducts();
 }
 
