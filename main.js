@@ -2,12 +2,12 @@
 // Este arquivo inicializa todos os módulos e configura a aplicação
 
 import { initSupabase } from './js/config.js';
-import { setupAuthListener } from './js/auth.js';
+import { setupAuthListener, isAuthenticated, signOut } from './js/auth.js';
 import { navigate } from './js/router.js';
 import { checkSystemStatus } from './app.js';
 import './js/globals.js'; // Exporta funções para window (compatibilidade)
 
-// Importar CSS do Leaflet
+// Importar CSS do Leaflet (Vite resolve automaticamente)
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
@@ -47,7 +47,6 @@ function closeMenu() {
 // Atualizar navbar baseado em autenticação
 async function updateNavbar() {
     try {
-        const { isAuthenticated } = await import('./js/auth.js');
         const authenticated = await isAuthenticated();
         
         const navDashboard = document.getElementById('navDashboard');
@@ -110,9 +109,12 @@ async function updateNavbar() {
 }
 
 async function handleLogout() {
-    const { signOut } = await import('./js/auth.js');
-    await signOut();
-    updateNavbar();
+    try {
+        await signOut();
+        updateNavbar();
+    } catch (error) {
+        console.error('Erro ao fazer logout:', error);
+    }
 }
 
 // Atualizar navbar quando auth mudar

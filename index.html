@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ERP AgroGoiás</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- CSS do Leaflet será importado via JS no main.js -->
+    <link rel="stylesheet" href="/styles.css">
+    <!-- CSS do Leaflet será importado via main.js -->
 </head>
 <body>
     <nav class="navbar">
@@ -19,9 +19,9 @@
                 <h1 class="nav-logo">ERP AgroGoiás</h1>
             </div>
             <ul class="nav-menu">
-                <li id="navDashboard"><a href="/" onclick="event.preventDefault(); navigate('/dashboard')">Dashboard</a></li>
-                <li id="navLogin" style="display: none;"><a href="/login" onclick="event.preventDefault(); navigate('/login')">Login</a></li>
-                <li id="navLogout" style="display: none;"><a href="#" onclick="event.preventDefault(); handleLogout()">Sair</a></li>
+                <li id="navDashboard"><a href="/" onclick="event.preventDefault(); if (typeof window.navigate === 'function') window.navigate('/dashboard'); else window.location.href = '/dashboard';">Dashboard</a></li>
+                <li id="navLogin" style="display: none;"><a href="/login" onclick="event.preventDefault(); if (typeof window.navigate === 'function') window.navigate('/login'); else window.location.href = '/login';">Login</a></li>
+                <li id="navLogout" style="display: none;"><a href="#" onclick="event.preventDefault(); if (typeof window.handleLogout === 'function') window.handleLogout();">Sair</a></li>
             </ul>
         </div>
     </nav>
@@ -33,49 +33,49 @@
             <button class="sidebar-close" onclick="toggleMenu()" aria-label="Fechar menu">&times;</button>
         </div>
         <ul class="sidebar-menu-list">
-            <li id="sidebarDashboard"><a href="/" onclick="event.preventDefault(); closeMenu(); navigate('/dashboard')">
+            <li id="sidebarDashboard"><a href="/" onclick="event.preventDefault(); closeMenu(); if (typeof window.navigate === 'function') window.navigate('/dashboard'); else window.location.href = '/dashboard';">
                 <span style="font-size: 1.1rem;">📊</span>
                 <span>Dashboard</span>
             </a></li>
-            <li id="sidebarProperties"><a href="/properties" onclick="event.preventDefault(); closeMenu(); navigate('/properties')">
+            <li id="sidebarProperties"><a href="/properties" onclick="event.preventDefault(); closeMenu(); if (typeof window.navigate === 'function') window.navigate('/properties'); else window.location.href = '/properties';">
                 <span style="font-size: 1.1rem;">🏞️</span>
                 <span>Propriedades</span>
             </a></li>
-            <li id="sidebarPlots"><a href="/plots" onclick="event.preventDefault(); closeMenu(); navigate('/plots')">
+            <li id="sidebarPlots"><a href="/plots" onclick="event.preventDefault(); closeMenu(); if (typeof window.navigate === 'function') window.navigate('/plots'); else window.location.href = '/plots';">
                 <span style="font-size: 1.1rem;">📐</span>
                 <span>Talhões</span>
             </a></li>
-            <li id="sidebarSoilAnalysis"><a href="/soil-analysis" onclick="event.preventDefault(); closeMenu(); navigate('/soil-analysis')">
+            <li id="sidebarSoilAnalysis"><a href="/soil-analysis" onclick="event.preventDefault(); closeMenu(); if (typeof window.navigate === 'function') window.navigate('/soil-analysis'); else window.location.href = '/soil-analysis';">
                 <span style="font-size: 1.1rem;">🔬</span>
                 <span>Análises de Solo</span>
             </a></li>
-            <li id="sidebarCropCycles"><a href="/crop-cycles" onclick="event.preventDefault(); closeMenu(); navigate('/crop-cycles')">
+            <li id="sidebarCropCycles"><a href="/crop-cycles" onclick="event.preventDefault(); closeMenu(); if (typeof window.navigate === 'function') window.navigate('/crop-cycles'); else window.location.href = '/crop-cycles';">
                 <span style="font-size: 1.1rem;">🌾</span>
                 <span>Ciclos de Cultivo</span>
             </a></li>
             <li class="sidebar-separator"></li>
-            <li id="sidebarProducts"><a href="/products" onclick="event.preventDefault(); closeMenu(); navigate('/products')">
+            <li id="sidebarProducts"><a href="/products" onclick="event.preventDefault(); closeMenu(); if (typeof window.navigate === 'function') window.navigate('/products'); else window.location.href = '/products';">
                 <span style="font-size: 1.1rem;">📦</span>
                 <span>Produtos</span>
             </a></li>
-            <li id="sidebarStock"><a href="/stock" onclick="event.preventDefault(); closeMenu(); navigate('/stock')">
+            <li id="sidebarStock"><a href="/stock" onclick="event.preventDefault(); closeMenu(); if (typeof window.navigate === 'function') window.navigate('/stock'); else window.location.href = '/stock';">
                 <span style="font-size: 1.1rem;">📊</span>
                 <span>Estoque</span>
             </a></li>
-            <li id="sidebarApplications"><a href="/applications" onclick="event.preventDefault(); closeMenu(); navigate('/applications')">
+            <li id="sidebarApplications"><a href="/applications" onclick="event.preventDefault(); closeMenu(); if (typeof window.navigate === 'function') window.navigate('/applications'); else window.location.href = '/applications';">
                 <span style="font-size: 1.1rem;">💉</span>
                 <span>Aplicações</span>
             </a></li>
-            <li id="sidebarEquipment"><a href="/equipment" onclick="event.preventDefault(); closeMenu(); navigate('/equipment')">
+            <li id="sidebarEquipment"><a href="/equipment" onclick="event.preventDefault(); closeMenu(); if (typeof window.navigate === 'function') window.navigate('/equipment'); else window.location.href = '/equipment';">
                 <span style="font-size: 1.1rem;">🚜</span>
                 <span>Equipamentos</span>
             </a></li>
             <li class="sidebar-separator"></li>
-            <li id="sidebarLogin" style="display: none;"><a href="/login" onclick="event.preventDefault(); closeMenu(); navigate('/login')">
+            <li id="sidebarLogin" style="display: none;"><a href="/login" onclick="event.preventDefault(); closeMenu(); if (typeof window.navigate === 'function') window.navigate('/login'); else window.location.href = '/login';">
                 <span style="font-size: 1.1rem;">🔐</span>
                 <span>Login</span>
             </a></li>
-            <li id="sidebarLogout" style="display: none;"><a href="#" onclick="event.preventDefault(); closeMenu(); handleLogout()">
+            <li id="sidebarLogout" style="display: none;"><a href="#" onclick="event.preventDefault(); closeMenu(); if (typeof window.handleLogout === 'function') window.handleLogout();">
                 <span style="font-size: 1.1rem;">🚪</span>
                 <span>Sair</span>
             </a></li>
@@ -97,7 +97,7 @@
                         <span class="db-status-text">Testando conexão com Supabase...</span>
                     </div>
                     <div style="margin-top: 30px;">
-                        <button onclick="navigate('/dashboard')" class="btn-primary">Acessar Dashboard</button>
+                        <button onclick="if (typeof window.navigate === 'function') window.navigate('/dashboard'); else window.location.href = '/dashboard';" class="btn-primary">Acessar Dashboard</button>
                     </div>
                 </div>
             </div>
