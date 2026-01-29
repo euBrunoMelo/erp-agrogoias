@@ -1,34 +1,42 @@
 // Configuração do Supabase
-// Verificar se já foi inicializado para evitar redeclaração
-if (typeof window.SUPABASE_CONFIG === 'undefined') {
-    const SUPABASE_URL = 'https://dajjvbzktyyjmykienwq.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhamp2YnprdHl5am15a2llbndxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5ODI3NDIsImV4cCI6MjA3ODU1ODc0Mn0.YqEqtChtpEW97YfHZIIEIzRRphsyMFJsBPG8E_1iSyI';
+import { createClient } from '@supabase/supabase-js';
 
-    // Inicializar Supabase
-    let supabase;
+// Obter variáveis de ambiente ou usar valores padrão
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://dajjvbzktyyjmykienwq.supabase.co';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhamp2YnprdHl5am15a2llbndxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5ODI3NDIsImV4cCI6MjA3ODU1ODc0Mn0.YqEqtChtpEW97YfHZIIEIzRRphsyMFJsBPG8E_1iSyI';
 
-    function initSupabase() {
-        if (typeof window.supabase !== 'undefined') {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            window.supabaseClient = supabase;
-            return true;
-        }
-        return false;
+// Cliente Supabase singleton
+let supabaseClient = null;
+
+/**
+ * Inicializa o cliente Supabase
+ * @returns {import('@supabase/supabase-js').SupabaseClient} Cliente Supabase
+ */
+export function initSupabase() {
+    if (!supabaseClient) {
+        supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('✅ Supabase inicializado com sucesso');
     }
-
-    // Aguardar Supabase carregar
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!initSupabase()) {
-                setTimeout(() => initSupabase(), 500);
-            }
-        });
-    } else {
-        if (!initSupabase()) {
-            setTimeout(() => initSupabase(), 500);
-        }
-    }
-
-    // Exportar para uso em outros módulos
-    window.SUPABASE_CONFIG = { SUPABASE_URL, SUPABASE_ANON_KEY, getClient: () => supabase };
+    return supabaseClient;
 }
+
+/**
+ * Obtém o cliente Supabase (inicializa se necessário)
+ * @returns {import('@supabase/supabase-js').SupabaseClient} Cliente Supabase
+ */
+export function getSupabaseClient() {
+    if (!supabaseClient) {
+        return initSupabase();
+    }
+    return supabaseClient;
+}
+
+// Exportar configuração para uso em outros módulos
+export const SUPABASE_CONFIG = {
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
+    getClient: getSupabaseClient
+};
+
+// Inicializar automaticamente quando o módulo for carregado
+initSupabase();

@@ -1,11 +1,8 @@
 // CRUD de Produtos (Insumos)
+import { getSupabaseClient } from './config.js';
+import { showNotification } from './ui.js';
 
-// Obter cliente Supabase
-function getSupabaseClient() {
-    return window.supabaseClient;
-}
-
-async function getProducts() {
+export async function getProducts() {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -33,7 +30,7 @@ async function getProducts() {
     }
 }
 
-async function getProductById(id) {
+export async function getProductById(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -55,7 +52,7 @@ async function getProductById(id) {
     }
 }
 
-async function createProduct(product) {
+export async function createProduct(product) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -89,7 +86,7 @@ async function createProduct(product) {
     }
 }
 
-async function updateProduct(id, updates) {
+export async function updateProduct(id, updates) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -113,7 +110,7 @@ async function updateProduct(id, updates) {
     }
 }
 
-async function deleteProduct(id) {
+export async function deleteProduct(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -133,14 +130,3 @@ async function deleteProduct(id) {
         throw error;
     }
 }
-
-// Função showNotification é fornecida por js/ui.js
-// Usar window.showNotification diretamente
-
-// Exportar funções globalmente
-window.getProducts = getProducts;
-window.getProductById = getProductById;
-window.createProduct = createProduct;
-window.updateProduct = updateProduct;
-window.deleteProduct = deleteProduct;
-

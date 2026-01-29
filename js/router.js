@@ -1,4 +1,5 @@
 // Router SPA simples
+import { isAuthenticated } from './auth.js';
 
 const routes = {
     '/': 'pages/dashboard.html',
@@ -16,11 +17,13 @@ const routes = {
 };
 
 let currentPage = '';
-
-// Flag para evitar loops de redirecionamento
 let isNavigating = false;
 
-async function navigate(path) {
+/**
+ * Navegar para uma rota
+ * @param {string} path 
+ */
+export async function navigate(path) {
     // Evitar navegação recursiva
     if (isNavigating) {
         console.log('Navegação já em andamento, ignorando:', path);
@@ -37,45 +40,23 @@ async function navigate(path) {
         const isProtectedRoute = protectedRoutes.includes(path);
         
         if (isProtectedRoute) {
-            // Aguardar função isAuthenticated estar disponível
-            let retries = 0;
-            while (typeof isAuthenticated !== 'function' && retries < 10) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                retries++;
-            }
-            
-            if (typeof isAuthenticated === 'function') {
-                const authenticated = await isAuthenticated();
-                if (!authenticated) {
-                    isNavigating = false;
-                    currentPage = '/login';
-                    window.history.pushState({ path: '/login' }, '', '/login');
-                    path = '/login';
-                    // Usar window.location para evitar loop
-                    window.location.href = '/login';
-                    return;
-                }
+            const authenticated = await isAuthenticated();
+            if (!authenticated) {
+                isNavigating = false;
+                currentPage = '/login';
+                window.history.pushState({ path: '/login' }, '', '/login');
+                window.location.href = '/login';
+                return;
             }
         }
         
         // Se estiver autenticado e tentar acessar login/register, redirecionar para dashboard
         if (path === '/login' || path === '/register') {
-            // Aguardar função isAuthenticated estar disponível
-            let retries = 0;
-            while (typeof isAuthenticated !== 'function' && retries < 10) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                retries++;
-            }
-            
-            if (typeof isAuthenticated === 'function') {
-                const authenticated = await isAuthenticated();
-                if (authenticated) {
-                    isNavigating = false;
-                    path = '/dashboard';
-                    // Usar window.location para evitar loop
-                    window.location.href = '/dashboard';
-                    return;
-                }
+            const authenticated = await isAuthenticated();
+            if (authenticated) {
+                isNavigating = false;
+                window.location.href = '/dashboard';
+                return;
             }
         }
     
@@ -136,7 +117,6 @@ window.addEventListener('popstate', (e) => {
 
 // Navegação inicial
 document.addEventListener('DOMContentLoaded', async () => {
-    // Aguardar scripts carregarem
     await new Promise(resolve => setTimeout(resolve, 500));
     
     const path = window.location.pathname || '/';
@@ -146,19 +126,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const isProtectedRoute = protectedRoutes.includes(path) || path === '/';
     
     if (isProtectedRoute) {
-        // Aguardar funções de auth estarem disponíveis
-        let retries = 0;
-        while (typeof isAuthenticated !== 'function' && retries < 20) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            retries++;
-        }
-        
-        if (typeof isAuthenticated === 'function') {
-            const authenticated = await isAuthenticated();
-            if (!authenticated) {
-                navigate('/login');
-                return;
-            }
+        const authenticated = await isAuthenticated();
+        if (!authenticated) {
+            navigate('/login');
+            return;
         }
     }
     
@@ -169,7 +140,3 @@ document.addEventListener('DOMContentLoaded', async () => {
         navigate(path);
     }
 });
-
-// Exportar para uso global
-window.navigate = navigate;
-

@@ -1,11 +1,8 @@
 // CRUD de Análises de Solo
+import { getSupabaseClient } from './config.js';
+import { showNotification } from './ui.js';
 
-// Obter cliente Supabase
-function getSupabaseClient() {
-    return window.supabaseClient;
-}
-
-async function getSoilAnalyses(plotId = null) {
+export async function getSoilAnalyses(plotId = null) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -40,7 +37,7 @@ async function getSoilAnalyses(plotId = null) {
     }
 }
 
-async function getSoilAnalysisById(id) {
+export async function getSoilAnalysisById(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -70,7 +67,7 @@ async function getSoilAnalysisById(id) {
     }
 }
 
-async function createSoilAnalysis(analysis) {
+export async function createSoilAnalysis(analysis) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -93,7 +90,7 @@ async function createSoilAnalysis(analysis) {
     }
 }
 
-async function updateSoilAnalysis(id, updates) {
+export async function updateSoilAnalysis(id, updates) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -117,7 +114,7 @@ async function updateSoilAnalysis(id, updates) {
     }
 }
 
-async function deleteSoilAnalysis(id) {
+export async function deleteSoilAnalysis(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -137,21 +134,3 @@ async function deleteSoilAnalysis(id) {
         throw error;
     }
 }
-
-// Função auxiliar para mostrar notificações
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 100);
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
-

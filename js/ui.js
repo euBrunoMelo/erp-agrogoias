@@ -1,20 +1,11 @@
 // UI Utilities - Centralização de funções de interface
-// Este arquivo centraliza a declaração de _globalShowNotification
-// para evitar conflitos de redeclaração em múltiplos arquivos
 
-// Armazenar referência à função global de notificação (se existir)
-// Esta declaração deve acontecer APENAS UMA VEZ em todo o projeto
-const _globalShowNotification = window.showNotification;
-
-// Função wrapper para mostrar notificações
-// Usa a função global se disponível, caso contrário cria elemento DOM
-function showNotification(message, type = 'info') {
-    // Se existe uma função global e ela é diferente desta, usar ela
-    if (typeof _globalShowNotification === 'function' && _globalShowNotification !== showNotification) {
-        _globalShowNotification(message, type);
-        return;
-    }
-    
+/**
+ * Função wrapper para mostrar notificações
+ * @param {string} message 
+ * @param {string} type 
+ */
+export function showNotification(message, type = 'info') {
     // Fallback: criar notificação via DOM
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
@@ -62,6 +53,3 @@ function showNotification(message, type = 'info') {
         }, 300);
     }, 5000);
 }
-
-// Exportar função globalmente
-window.showNotification = showNotification;

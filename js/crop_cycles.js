@@ -1,11 +1,8 @@
 // CRUD de Ciclos de Cultivo
+import { getSupabaseClient } from './config.js';
+import { showNotification } from './ui.js';
 
-// Obter cliente Supabase
-function getSupabaseClient() {
-    return window.supabaseClient;
-}
-
-async function getCropCycles(plotId = null) {
+export async function getCropCycles(plotId = null) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -46,7 +43,7 @@ async function getCropCycles(plotId = null) {
     }
 }
 
-async function getCropCycleById(id) {
+export async function getCropCycleById(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -82,7 +79,7 @@ async function getCropCycleById(id) {
     }
 }
 
-async function getCrops() {
+export async function getCrops() {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -102,7 +99,7 @@ async function getCrops() {
     }
 }
 
-async function getCultureVarieties(cropId) {
+export async function getCultureVarieties(cropId) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -123,7 +120,7 @@ async function getCultureVarieties(cropId) {
     }
 }
 
-async function createCropCycle(cycle) {
+export async function createCropCycle(cycle) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -146,7 +143,7 @@ async function createCropCycle(cycle) {
     }
 }
 
-async function updateCropCycle(id, updates) {
+export async function updateCropCycle(id, updates) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -170,7 +167,7 @@ async function updateCropCycle(id, updates) {
     }
 }
 
-async function deleteCropCycle(id) {
+export async function deleteCropCycle(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -190,21 +187,3 @@ async function deleteCropCycle(id) {
         throw error;
     }
 }
-
-// Função auxiliar para mostrar notificações
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 100);
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
-

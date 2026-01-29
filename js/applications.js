@@ -1,11 +1,8 @@
 // CRUD de Aplicações (Pulverização/Fertilização)
+import { getSupabaseClient } from './config.js';
+import { showNotification } from './ui.js';
 
-// Obter cliente Supabase
-function getSupabaseClient() {
-    return window.supabaseClient;
-}
-
-async function getApplications(plotId = null) {
+export async function getApplications(plotId = null) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -32,7 +29,7 @@ async function getApplications(plotId = null) {
     }
 }
 
-async function getApplicationById(id) {
+export async function getApplicationById(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -54,7 +51,7 @@ async function getApplicationById(id) {
     }
 }
 
-async function createApplication(application) {
+export async function createApplication(application) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -88,7 +85,7 @@ async function createApplication(application) {
     }
 }
 
-async function updateApplication(id, updates) {
+export async function updateApplication(id, updates) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -112,7 +109,7 @@ async function updateApplication(id, updates) {
     }
 }
 
-async function deleteApplication(id) {
+export async function deleteApplication(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -132,14 +129,3 @@ async function deleteApplication(id) {
         throw error;
     }
 }
-
-// Função showNotification é fornecida por js/ui.js
-// Usar window.showNotification diretamente
-
-// Exportar funções globalmente
-window.getApplications = getApplications;
-window.getApplicationById = getApplicationById;
-window.createApplication = createApplication;
-window.updateApplication = updateApplication;
-window.deleteApplication = deleteApplication;
-

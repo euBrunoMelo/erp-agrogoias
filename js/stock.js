@@ -1,11 +1,8 @@
 // CRUD de Estoque
+import { getSupabaseClient } from './config.js';
+import { showNotification } from './ui.js';
 
-// Obter cliente Supabase
-function getSupabaseClient() {
-    return window.supabaseClient;
-}
-
-async function getStock(propertyId = null) {
+export async function getStock(propertyId = null) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -39,7 +36,7 @@ async function getStock(propertyId = null) {
     }
 }
 
-async function getStockById(id) {
+export async function getStockById(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -61,7 +58,7 @@ async function getStockById(id) {
     }
 }
 
-async function createStock(stock) {
+export async function createStock(stock) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -95,7 +92,7 @@ async function createStock(stock) {
     }
 }
 
-async function updateStock(id, updates) {
+export async function updateStock(id, updates) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -119,7 +116,7 @@ async function updateStock(id, updates) {
     }
 }
 
-async function deleteStock(id) {
+export async function deleteStock(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -140,23 +137,10 @@ async function deleteStock(id) {
     }
 }
 
-// Função para verificar estoque baixo
-async function getLowStock(propertyId = null) {
+export async function getLowStock(propertyId = null) {
     const stock = await getStock(propertyId);
     return stock.filter(item => {
         if (!item.min_stock || item.min_stock === 0) return false;
         return parseFloat(item.quantity) <= parseFloat(item.min_stock);
     });
 }
-
-// Função showNotification é fornecida por js/ui.js
-// Usar window.showNotification diretamente
-
-// Exportar funções globalmente
-window.getStock = getStock;
-window.getStockById = getStockById;
-window.createStock = createStock;
-window.updateStock = updateStock;
-window.deleteStock = deleteStock;
-window.getLowStock = getLowStock;
-

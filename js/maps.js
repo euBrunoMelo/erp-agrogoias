@@ -1,5 +1,9 @@
 // Módulo de Mapas - Leaflet.js
 // Funções para gerenciar mapas, marcadores e polígonos
+import L from 'leaflet';
+import 'leaflet-draw';
+import 'leaflet-control-geocoder';
+import 'leaflet-measure';
 
 // Coordenadas padrão: Goiânia-GO
 const DEFAULT_CENTER = [-16.6864, -49.2556];
@@ -19,7 +23,7 @@ let plotDrawnLayer = null;
  * @param {number} zoom - Nível de zoom (opcional)
  * @returns {L.Map} Instância do mapa Leaflet
  */
-function initMap(containerId, center = DEFAULT_CENTER, zoom = DEFAULT_ZOOM) {
+export function initMap(containerId, center = DEFAULT_CENTER, zoom = DEFAULT_ZOOM) {
     // Verificar se o container existe
     const container = document.getElementById(containerId);
     if (!container) {
@@ -55,7 +59,7 @@ function initMap(containerId, center = DEFAULT_CENTER, zoom = DEFAULT_ZOOM) {
  * @param {Function} onCoordinateChange - Callback quando coordenadas mudam
  * @returns {Object} {map, marker}
  */
-function initPropertyMap(containerId, coordinates = null, onCoordinateChange = null) {
+export function initPropertyMap(containerId, coordinates = null, onCoordinateChange = null) {
     // Limpar mapa anterior se existir
     if (propertyMap) {
         propertyMap.remove();
@@ -149,7 +153,7 @@ function initPropertyMap(containerId, coordinates = null, onCoordinateChange = n
  * @param {Function} onPolygonChange - Callback quando polígono muda
  * @returns {Object} {map, drawControl, drawnLayer}
  */
-function initPlotMap(containerId, coordinates = null, onPolygonChange = null) {
+export function initPlotMap(containerId, coordinates = null, onPolygonChange = null) {
     // Limpar mapa anterior se existir
     if (plotMap) {
         plotMap.remove();
@@ -271,7 +275,7 @@ function initPlotMap(containerId, coordinates = null, onPolygonChange = null) {
  * Carrega um polígono existente no mapa
  * @param {Array} coordinates - Array de coordenadas [[lat, lng], ...]
  */
-function loadPlotPolygon(coordinates) {
+export function loadPlotPolygon(coordinates) {
     if (!plotMap || !plotDrawnLayer) return;
 
     plotDrawnLayer.clearLayers();
@@ -300,7 +304,7 @@ function loadPlotPolygon(coordinates) {
  * @param {Array} latlngs - Array de coordenadas [{lat, lng}, ...] ou [[lat, lng], ...]
  * @returns {number} Área em hectares
  */
-function calculatePolygonArea(latlngs) {
+export function calculatePolygonArea(latlngs) {
     if (!latlngs || latlngs.length < 3) return 0;
 
     // Converter para formato consistente
@@ -333,7 +337,7 @@ function calculatePolygonArea(latlngs) {
  * Obtém coordenadas do marcador da propriedade
  * @returns {Object|null} {lat, lng} ou null
  */
-function getPropertyCoordinates() {
+export function getPropertyCoordinates() {
     if (!propertyMarker) return null;
     const latlng = propertyMarker.getLatLng();
     return {
@@ -346,7 +350,7 @@ function getPropertyCoordinates() {
  * Obtém coordenadas do polígono do talhão
  * @returns {Object|null} GeoJSON Polygon ou null
  */
-function getPlotCoordinates() {
+export function getPlotCoordinates() {
     if (!plotDrawnLayer || plotDrawnLayer.getLayers().length === 0) return null;
 
     const layer = plotDrawnLayer.getLayers()[0];
@@ -365,7 +369,7 @@ function getPlotCoordinates() {
 /**
  * Limpa o mapa de propriedade
  */
-function clearPropertyMap() {
+export function clearPropertyMap() {
     if (propertyMap) {
         propertyMap.remove();
         propertyMap = null;
@@ -376,7 +380,7 @@ function clearPropertyMap() {
 /**
  * Limpa o mapa de talhão
  */
-function clearPlotMap() {
+export function clearPlotMap() {
     if (plotMap) {
         plotMap.remove();
         plotMap = null;
@@ -390,7 +394,7 @@ function clearPlotMap() {
  * @param {Object} coordinates - Coordenadas do banco (GeoJSON)
  * @returns {Array|null} [lat, lng] ou null
  */
-function parseCoordinates(coordinates) {
+export function parseCoordinates(coordinates) {
     if (!coordinates) return null;
 
     if (coordinates.type === 'Point') {
@@ -408,16 +412,3 @@ function parseCoordinates(coordinates) {
 
     return null;
 }
-
-// Exportar funções globalmente
-window.initMap = initMap;
-window.initPropertyMap = initPropertyMap;
-window.initPlotMap = initPlotMap;
-window.getPropertyCoordinates = getPropertyCoordinates;
-window.getPlotCoordinates = getPlotCoordinates;
-window.parseCoordinates = parseCoordinates;
-window.clearPropertyMap = clearPropertyMap;
-window.clearPlotMap = clearPlotMap;
-window.loadPlotPolygon = loadPlotPolygon;
-window.calculatePolygonArea = calculatePolygonArea;
-

@@ -1,11 +1,8 @@
 // CRUD de Equipamentos
+import { getSupabaseClient } from './config.js';
+import { showNotification } from './ui.js';
 
-// Obter cliente Supabase
-function getSupabaseClient() {
-    return window.supabaseClient;
-}
-
-async function getEquipment(propertyId = null) {
+export async function getEquipment(propertyId = null) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -32,7 +29,7 @@ async function getEquipment(propertyId = null) {
     }
 }
 
-async function getEquipmentById(id) {
+export async function getEquipmentById(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -54,7 +51,7 @@ async function getEquipmentById(id) {
     }
 }
 
-async function createEquipment(equipment) {
+export async function createEquipment(equipment) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -88,7 +85,7 @@ async function createEquipment(equipment) {
     }
 }
 
-async function updateEquipment(id, updates) {
+export async function updateEquipment(id, updates) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -112,7 +109,7 @@ async function updateEquipment(id, updates) {
     }
 }
 
-async function deleteEquipment(id) {
+export async function deleteEquipment(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -132,14 +129,3 @@ async function deleteEquipment(id) {
         throw error;
     }
 }
-
-// Função showNotification é fornecida por js/ui.js
-// Usar window.showNotification diretamente
-
-// Exportar funções globalmente
-window.getEquipment = getEquipment;
-window.getEquipmentById = getEquipmentById;
-window.createEquipment = createEquipment;
-window.updateEquipment = updateEquipment;
-window.deleteEquipment = deleteEquipment;
-

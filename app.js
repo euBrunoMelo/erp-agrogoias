@@ -1,25 +1,24 @@
 // Configuração do Supabase
 // URL do projeto: https://dajjvbzktyyjmykienwq.supabase.co
 // NOTA: A inicialização do Supabase é feita em js/config.js
-// Este arquivo apenas usa window.supabaseClient já inicializado
+
+import { getSupabaseClient, SUPABASE_CONFIG } from './js/config.js';
 
 // Função para testar conexão com Supabase
-async function testSupabaseConnection() {
+export async function testSupabaseConnection() {
     const dbStatusElement = document.getElementById('dbStatus');
     
-    // Obter configuração do Supabase (disponível via window.SUPABASE_CONFIG de config.js)
-    const config = window.SUPABASE_CONFIG;
-    if (!config) {
-        throw new Error('Configuração do Supabase não encontrada');
-    }
+    if (!dbStatusElement) return;
     
     try {
+        const supabase = getSupabaseClient();
+        
         // Primeiro, verifica se a API do Supabase está acessível
-        const healthCheck = await fetch(`${config.SUPABASE_URL}/rest/v1/`, {
+        const healthCheck = await fetch(`${SUPABASE_CONFIG.SUPABASE_URL}/rest/v1/`, {
             method: 'HEAD',
             headers: {
-                'apikey': config.SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${config.SUPABASE_ANON_KEY}`
+                'apikey': SUPABASE_CONFIG.SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_CONFIG.SUPABASE_ANON_KEY}`
             }
         });
         
@@ -27,22 +26,15 @@ async function testSupabaseConnection() {
             throw new Error(`API não está respondendo: HTTP ${healthCheck.status}`);
         }
         
-        // Se o cliente Supabase estiver disponível, tenta uma query mais completa
-        const supabaseClient = window.supabaseClient;
-        if (supabaseClient) {
-            // Tenta fazer uma query simples usando o cliente
-            // Isso valida tanto a conexão quanto a autenticação
-            const { data, error } = await supabaseClient
-                .from('_realtime')
-                .select('*')
-                .limit(0);
-            
-            // Ignora erro de tabela não encontrada (é esperado se a tabela não existir)
-            // O importante é que a API respondeu
-            if (error && error.code !== 'PGRST116' && error.code !== '42P01') {
-                console.warn('Erro na query de teste:', error);
-                // Mesmo assim, se o health check passou, a conexão está OK
-            }
+        // Tenta fazer uma query simples usando o cliente
+        const { data, error } = await supabase
+            .from('_realtime')
+            .select('*')
+            .limit(0);
+        
+        // Ignora erro de tabela não encontrada (é esperado se a tabela não existir)
+        if (error && error.code !== 'PGRST116' && error.code !== '42P01') {
+            console.warn('Erro na query de teste:', error);
         }
         
         // Se chegou até aqui, a conexão está funcionando
@@ -56,22 +48,21 @@ async function testSupabaseConnection() {
         
     } catch (error) {
         console.error('Erro ao conectar com Supabase:', error);
-        dbStatusElement.innerHTML = `
-            <span class="db-status-text error">
-                ⚠️ Erro na conexão: ${error.message || 'Verifique as configurações'}
-            </span>
-        `;
-        dbStatusElement.className = 'db-status error';
+        if (dbStatusElement) {
+            dbStatusElement.innerHTML = `
+                <span class="db-status-text error">
+                    ⚠️ Erro na conexão: ${error.message || 'Verifique as configurações'}
+                </span>
+            `;
+            dbStatusElement.className = 'db-status error';
+        }
     }
 }
 
 // Função para verificar status do sistema
-async function checkSystemStatus() {
-    const config = window.SUPABASE_CONFIG;
-    if (config) {
-        console.log('🔍 Verificando conexão com Supabase...');
-        console.log('📍 URL:', config.SUPABASE_URL);
-    }
+export async function checkSystemStatus() {
+    console.log('🔍 Verificando conexão com Supabase...');
+    console.log('📍 URL:', SUPABASE_CONFIG.SUPABASE_URL);
     
     try {
         await testSupabaseConnection();
@@ -88,23 +79,3 @@ async function checkSystemStatus() {
         }
     }
 }
-
-// Executar quando a página carregar
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 ERP AgroGoiás - Sistema iniciado');
-    
-    // Aguardar Supabase ser inicializado por js/config.js
-    const checkSupabaseReady = () => {
-        if (window.supabaseClient) {
-            console.log('✅ Cliente Supabase disponível');
-            checkSystemStatus();
-        } else {
-            console.log('⏳ Aguardando inicialização do Supabase...');
-            setTimeout(checkSupabaseReady, 100);
-        }
-    };
-    
-    // Aguardar um pouco para garantir que config.js já executou
-    setTimeout(checkSupabaseReady, 200);
-});
-

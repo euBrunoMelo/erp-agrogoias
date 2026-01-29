@@ -1,11 +1,8 @@
 // CRUD de Talhões
+import { getSupabaseClient } from './config.js';
+import { showNotification } from './ui.js';
 
-// Obter cliente Supabase
-function getSupabaseClient() {
-    return window.supabaseClient;
-}
-
-async function getPlots(propertyId = null) {
+export async function getPlots(propertyId = null) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -32,7 +29,7 @@ async function getPlots(propertyId = null) {
     }
 }
 
-async function getPlotById(id) {
+export async function getPlotById(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -54,7 +51,7 @@ async function getPlotById(id) {
     }
 }
 
-async function createPlot(plot) {
+export async function createPlot(plot) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -77,7 +74,7 @@ async function createPlot(plot) {
     }
 }
 
-async function updatePlot(id, updates) {
+export async function updatePlot(id, updates) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -101,7 +98,7 @@ async function updatePlot(id, updates) {
     }
 }
 
-async function deletePlot(id) {
+export async function deletePlot(id) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         console.error('Supabase não está inicializado');
@@ -121,21 +118,3 @@ async function deletePlot(id) {
         throw error;
     }
 }
-
-// Função auxiliar para mostrar notificações
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 100);
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
-

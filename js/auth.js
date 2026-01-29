@@ -1,12 +1,15 @@
 // Autenticação com Supabase Auth
+import { getSupabaseClient } from './config.js';
+import { showNotification } from './ui.js';
+import { navigate } from './router.js';
 
-// Obter cliente Supabase
-function getSupabaseClient() {
-    return window.supabaseClient;
-}
-
-// Função de Login
-async function signIn(email, password) {
+/**
+ * Função de Login
+ * @param {string} email 
+ * @param {string} password 
+ * @returns {Promise<{data: any, error: any}>}
+ */
+export async function signIn(email, password) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         throw new Error('Supabase não está inicializado');
@@ -29,35 +32,68 @@ async function signIn(email, password) {
     }
 }
 
-// Função de Registro
-async function signUp(email, password, userData = {}) {
+/**
+ * Função de Registro
+ * @param {string} email 
+ * @param {string} password 
+ * @param {object} userData 
+ * @returns {Promise<{data: any, error: any}>}
+ */
+export async function signUp(email, password, userData = {}) {
     const supabase = getSupabaseClient();
     if (!supabase) {
         throw new Error('Supabase não está inicializado');
     }
 
     try {
+        console.log('📝 Tentando criar conta para:', email);
+        console.log('📋 Dados do usuário:', userData);
+        
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
-                data: userData // Dados adicionais do usuário (nome, role, etc.)
+                data: userData,
+                emailRedirectTo: window.location.origin + '/login'
             }
         });
 
-        if (error) throw error;
+        if (error) {
+            console.error('❌ Erro do Supabase:', error);
+            throw error;
+        }
 
-        showNotification('Conta criada com sucesso! Verifique seu email para confirmar.', 'success');
+        console.log('✅ Conta criada com sucesso!');
+        
+        if (data.user) {
+            console.log('👤 Usuário criado:', data.user.id);
+            console.log('📧 Email:', data.user.email);
+        }
+
+        // Não mostrar notificação aqui - deixar a página de registro fazer isso
         return { data, error: null };
     } catch (error) {
-        console.error('Erro ao criar conta:', error);
-        showNotification(error.message || 'Erro ao criar conta', 'error');
-        return { data: null, error };
+        console.error('❌ Erro ao criar conta:', error);
+        
+        let errorMessage = error.message || 'Erro ao criar conta';
+        
+        if (error.code === 'signup_disabled') {
+            errorMessage = 'Cadastro está desabilitado. Entre em contato com o administrador.';
+        } else if (error.code === 'email_rate_limit_exceeded') {
+            errorMessage = 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+        } else if (error.message && error.message.includes('already registered')) {
+            errorMessage = 'Este email já está cadastrado. Faça login ou recupere sua senha.';
+        }
+        
+        return { data: null, error: { ...error, message: errorMessage } };
     }
 }
 
-// Função de Logout
-async function signOut() {
+/**
+ * Função de Logout
+ * @returns {Promise<{error: any}>}
+ */
+export async function signOut() {
     const supabase = getSupabaseClient();
     if (!supabase) {
         throw new Error('Supabase não está inicializado');
@@ -77,8 +113,11 @@ async function signOut() {
     }
 }
 
-// Obter usuário atual
-async function getCurrentUser() {
+/**
+ * Obter usuário atual
+ * @returns {Promise<import('@supabase/supabase-js').User | null>}
+ */
+export async function getCurrentUser() {
     const supabase = getSupabaseClient();
     if (!supabase) {
         return null;
@@ -94,8 +133,11 @@ async function getCurrentUser() {
     }
 }
 
-// Obter sessão atual
-async function getCurrentSession() {
+/**
+ * Obter sessão atual
+ * @returns {Promise<import('@supabase/supabase-js').Session | null>}
+ */
+export async function getCurrentSession() {
     const supabase = getSupabaseClient();
     if (!supabase) {
         return null;
@@ -111,14 +153,19 @@ async function getCurrentSession() {
     }
 }
 
-// Verificar se usuário está autenticado
-async function isAuthenticated() {
+/**
+ * Verificar se usuário está autenticado
+ * @returns {Promise<boolean>}
+ */
+export async function isAuthenticated() {
     const session = await getCurrentSession();
     return session !== null;
 }
 
-// Listener de mudanças de autenticação
-function setupAuthListener() {
+/**
+ * Listener de mudanças de autenticação
+ */
+export function setupAuthListener() {
     const supabase = getSupabaseClient();
     if (!supabase) {
         return;
@@ -131,73 +178,36 @@ function setupAuthListener() {
         window.dispatchEvent(new CustomEvent('authStateChanged', { detail: { event, session } }));
 
         if (event === 'SIGNED_IN') {
-            if (typeof showNotification === 'function') {
-                showNotification('Bem-vindo!', 'success');
-            }
+            showNotification('Bem-vindo!', 'success');
             // Verificar se não está na página de login/registro
             const currentPath = window.location.pathname;
-            if ((currentPath === '/login' || currentPath === '/register') && typeof navigate === 'function') {
+            if ((currentPath === '/login' || currentPath === '/register')) {
                 setTimeout(() => navigate('/dashboard'), 500);
             }
         } else if (event === 'SIGNED_OUT') {
-            if (typeof showNotification === 'function') {
-                showNotification('Logout realizado!', 'info');
-            }
-            if (typeof navigate === 'function') {
-                setTimeout(() => navigate('/login'), 500);
-            }
+            showNotification('Logout realizado!', 'info');
+            setTimeout(() => navigate('/login'), 500);
         } else if (event === 'TOKEN_REFRESHED') {
             console.log('Token refreshed');
         }
     });
 }
 
-// Proteger rota - redireciona para login se não autenticado
-async function requireAuth() {
+/**
+ * Proteger rota - redireciona para login se não autenticado
+ * @returns {Promise<boolean>}
+ */
+export async function requireAuth() {
     try {
         const authenticated = await isAuthenticated();
         if (!authenticated) {
-            if (typeof navigate === 'function') {
-                navigate('/login');
-            } else {
-                window.location.href = '/login';
-            }
+            navigate('/login');
             return false;
         }
         return true;
     } catch (error) {
         console.error('Erro ao verificar autenticação:', error);
-        if (typeof navigate === 'function') {
-            navigate('/login');
-        } else {
-            window.location.href = '/login';
-        }
+        navigate('/login');
         return false;
     }
 }
-
-// Inicializar auth listener quando Supabase carregar
-document.addEventListener('DOMContentLoaded', () => {
-    // Aguardar Supabase carregar
-    const checkSupabase = setInterval(() => {
-        if (window.supabaseClient) {
-            setupAuthListener();
-            clearInterval(checkSupabase);
-        }
-    }, 100);
-
-    // Timeout após 5 segundos
-    setTimeout(() => {
-        clearInterval(checkSupabase);
-    }, 5000);
-});
-
-// Exportar funções para uso global
-window.signIn = signIn;
-window.signUp = signUp;
-window.signOut = signOut;
-window.getCurrentUser = getCurrentUser;
-window.getCurrentSession = getCurrentSession;
-window.isAuthenticated = isAuthenticated;
-window.requireAuth = requireAuth;
-
