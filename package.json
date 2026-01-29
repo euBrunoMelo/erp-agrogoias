@@ -2,7 +2,12 @@
   "name": "erp-agrogoias",
   "version": "1.0.0",
   "description": "Sistema ERP para AgroGoiás",
-  "scripts": {},
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "vite preview"
+  },
   "keywords": [
     "erp",
     "agrogoias",
@@ -11,6 +16,13 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0"
+    "@supabase/supabase-js": "^2.93.3",
+    "leaflet": "^1.9.4",
+    "leaflet-control-geocoder": "^3.3.1",
+    "leaflet-draw": "^1.0.4",
+    "leaflet-measure": "^3.1.0"
+  },
+  "devDependencies": {
+    "vite": "^7.3.1"
   }
 }
